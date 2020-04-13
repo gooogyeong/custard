@@ -27,7 +27,6 @@
  
   - 이미지 텍스트 인식  
    <img src="./gif/addCard(text-detect).gif"  width="600" height="300">
-   <img src="./gif/addCard(text-detect).gif"  width="600" height="300">
   
 * 카드 학습 & 점수보기  
 
