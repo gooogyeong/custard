@@ -35,18 +35,20 @@
 
 본 레파지토리를 https://github.com/YounglanHong/FinalProject_Custard.git 주소를 활용하여 로컬 환경에 clone 합니다.
 
-git clone https://github.com/YounglanHong/FinalProject_Custard.git
+`git clone https://github.com/YounglanHong/FinalProject_Custard.git`
+
 (2) 패키지 설치
 
-npm install
+`npm install`
+
 (3) 실행
 
-// Custard-client 
-cd client
-npm start
+#### Custard-client 
+`cd client`
+`npm start`
 
-// Custard-server
-npm start
+#### Custard-server
+`npm start`
 
 ### 4. 디렉토리 구조
 ```
@@ -164,7 +166,7 @@ Custard-server
 # 팀명: Andamiro 🙏
 ### 팀 소개
 [Front-End]
-* (팀장) 이민경
+* 이민경 (팀장) 
 * 홍영란
 
 [Back-End]
