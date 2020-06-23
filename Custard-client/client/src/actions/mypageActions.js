@@ -3,14 +3,25 @@ import axios from "axios";
 import LoginRoot from "../components/LoginRoot";
 import { Link, Redirect } from "react-router-dom";
 //import { UPDATE_USER_INFO } from "../../../../Wordmon-client/wordmon-client/src/actions/loginActions";
+import { UserRef } from "../firebase";
 
 axios.defaults.withCredentials = true;
 //axios.defaults.headers.common['authorization'] = token ;
 
+export const SET_UUID = "SET_UUID";
 export const SET_LOGIN = "SET_LOGIN";
 export const SET_TEMP_TOKEN = "SET_TEMP_TOKEN";
 export const UPDATE_USER_INFO = "UPDATE_USER_INFO";
 export const SIGN_OUT = "SIGN_OUT";
+
+export function setCurrUUID(uuid) {
+  return {
+    type: SET_UUID,
+    payload: {
+      uuid: uuid,
+    },
+  };
+}
 
 export function setTempToken(token) {
   return {
@@ -75,49 +86,56 @@ export function addProfile(profile) {
       .post("http://localhost:4000/users/profiles", formData, config)
       .then((res) => {
         console.log(res.data);
-        dispatch(updateUserInfo()); //okkkk
+        dispatch(initUser()); //okkkk
       });
   };
 }
 
-export function updateUserInfo() {
-  const token = localStorage.usertoken;
-  //const decoded = jwt_decode(token);
-  // console.log(decoded, "토큰 정보");
-  // this.setState({
-  //   id: decoded.id,
-  //   username: decoded.username,
-  //   email: decoded.email
-  // });
-  // this.userImageData(decoded)
-  //   .then(res => this.setState({ image: res.data[0].image })) // ? 밑에 꺼랑 중복. 되는지 모르겠음. 안되면 제거.
-  //   .catch(err => console.log(err));
+export function initUser(uuid) {
+  //const token = localStorage.usertoken;
+  console.log("updating user info");
+  console.log(uuid);
   return (dispatch) => {
-    axios
-      .get("http://localhost:4000/users/profile", {
-        headers: {
-          authorization: token,
-        },
-      })
-      .then((res) => {
-        console.log(res);
-        if (res.data == "no token") {
-          dispatch(signOutInStore());
-        } else {
+    UserRef.orderByChild("uuid")
+      .equalTo(uuid)
+      .on("value", (snap) => {
+        if (snap.exists()) {
+          const userKey = Object.keys(snap.val())[0];
+          const user = snap.val()[userKey];
+          //console.log("registered user");
+          //console.log(snap.val());
+          console.log(user);
           dispatch(setLogin());
-          dispatch(updateUserInfoInStore(res.data));
+          dispatch(setUserInfo(user));
         }
-      })
-      .catch((error) => {
-        console.log(error.message);
       });
+
+    // axios
+    //   .get("http://localhost:4000/users/profile", {
+    //     headers: {
+    //       authorization: token,
+    //     },
+    //   })
+    //   .then((res) => {
+    //     console.log(res);
+    //     if (res.data == "no token") {
+    //       dispatch(signOutInStore());
+    //     } else {
+    //       dispatch(setLogin());
+    //       dispatch(setUserInfo(res.data));
+    //     }
+    //   })
+    //   .catch((error) => {
+    //     console.log(error.message);
+    //   });
   };
 }
 
-export function updateUserInfoInStore(data) {
+export function setUserInfo(user) {
+  console.log(user);
   return {
     type: UPDATE_USER_INFO,
-    userInfo: data,
+    payload: { userInfo: user },
   };
   // return dispatch => {
   //   axios
@@ -135,6 +153,7 @@ export function handleSignOut() {
 }
 
 export function signOutInStore() {
+  console.log("signout in store");
   return {
     type: SIGN_OUT,
   };

@@ -1,31 +1,31 @@
+import { SET_UUID } from "../actions/mypageActions";
+
 const initialState = {
-  id: 0,
+  uuid: "",
+  //id: 0,
   email: "",
   username: "stranger",
   isLogin: false, //true, //TODO: default값 false로 바꿔야함
   image: "",
   //"https://cookingwithdog.com/wp-content/uploads/2017/01/custard-pudding-00.jpg",
-  token: ""
+  token: "",
 };
 
 const reducer = (state = initialState, action) => {
   switch (action.type) {
+    case SET_UUID:
+      return Object.assign({}, state, { uuid: action.payload.uuid });
     case "SET_TEMP_TOKEN":
       return Object.assign({}, state, { token: action.token });
     case "SET_LOGIN":
       return Object.assign({}, state, { isLogin: true });
     case "UPDATE_USER_INFO":
-      console.log({
-        id: action.userInfo.id,
-        email: action.userInfo.email,
-        username: action.userInfo.username,
-        image: action.userInfo.image
-      });
       return Object.assign({}, state, {
-        id: action.userInfo.id,
-        email: action.userInfo.email,
-        username: action.userInfo.username,
-        image: action.userInfo.image
+        isLogin: true,
+        uuid: action.payload.userInfo.id,
+        email: action.payload.userInfo.email,
+        username: action.payload.userInfo.username,
+        image: action.payload.userInfo.image,
       });
     case "SIGN_OUT":
       return Object.assign({}, state, { isLogin: false });

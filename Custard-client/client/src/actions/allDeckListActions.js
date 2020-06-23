@@ -20,15 +20,15 @@ export const DISACTIVATE_CATE_INPUT = "DISACTIVATE_CATE_INPUT";
 
 //! 카테고리 변경되면서 불러오는 데이터도 달라짐
 export function updateUserDecks(/*userId*/) {
-  return dispatch => {
+  return (dispatch) => {
     axios
       .get("http://localhost:4000/deck/infoCate")
-      .then(res => {
+      .then((res) => {
         console.log(res);
         dispatch(updateUserDecksToStore(res.data));
         //? dispatch(addDeck());
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -37,25 +37,25 @@ export function updateUserDecks(/*userId*/) {
 export function updateUserDecksToStore(category) {
   return {
     type: UPDATE_USER_DECKS,
-    category: category
+    category: category,
   };
 }
 
 //************* 카테고리 변경사항 추가 ******************/
 //TODO: 카테고리 추가
 export function addCategory(userId, category) {
-  return dispatch => {
+  return (dispatch) => {
     axios
       .post("http://localhost:4000/deck/infoCate", {
         user_id: userId,
-        category: category
+        category: category,
       })
-      .then(res => {
+      .then((res) => {
         //console.log(res);
         //updateUserDecks();
         dispatch(addCategoryInStore(res.data /*category*/));
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -63,22 +63,22 @@ export function addCategory(userId, category) {
 export function addCategoryInStore(cate) {
   return {
     type: ADD_CATEGORY,
-    cate: cate
+    cate: cate,
   };
 }
 
 //TODO: 카테고리 수정
 export function editCateInServer(cateId, category) {
-  return dispatch => {
+  return (dispatch) => {
     axios
       .patch("http://localhost:4000/deck/infoCate", {
         id: cateId,
-        category: category
+        category: category,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -86,15 +86,15 @@ export function editCateInServer(cateId, category) {
 
 //TODO: 카테고리 이름 수정 후 다시 불러오기
 export function editCateTitle(cateId) {
-  return dispatch => {
+  return (dispatch) => {
     axios
       .post("http://localhost:4000/deck/cate", {
-        id: cateId
+        id: cateId,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res); // "category": "brazil"
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -103,16 +103,16 @@ export function editCateTitle(cateId) {
 //TODO: 카테고리 제거
 //! 카테고리 삭제 시, 덱도 삭제(경고창 필요)
 export function deleteCategory(cateId) {
-  return dispatch => {
+  return (dispatch) => {
     axios
       .delete("http://localhost:4000/deck/infoCate", {
-        data: { id: cateId }
+        data: { id: cateId },
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
         dispatch(deleteCateInStore(cateId));
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -122,7 +122,7 @@ export function deleteCategory(cateId) {
 export function deleteCateInStore(cateId /*deck*/) {
   return {
     type: DELETE_CATEGORY,
-    category_id: cateId
+    category_id: cateId,
   };
 }
 
@@ -130,7 +130,7 @@ export function deleteCateInStore(cateId /*deck*/) {
 
 export function setActionToDefault() {
   return {
-    type: SET_ACTION_TO_DEFAULT
+    type: SET_ACTION_TO_DEFAULT,
   };
 }
 
@@ -142,13 +142,13 @@ export function setActionToDefault() {
 // action creator 액션 객체를 만들어 주는 생성 함수
 export function activateaddButton() {
   return {
-    type: ACTIVATE_ADD_BUTTON // ACTIVATE_ADD_BUTTON 이라는 액션 이름
+    type: ACTIVATE_ADD_BUTTON, // ACTIVATE_ADD_BUTTON 이라는 액션 이름
   };
 }
 
 export function activateInput() {
   return {
-    type: ACTIVATE_INPUT
+    type: ACTIVATE_INPUT,
   };
 }
 
@@ -178,20 +178,20 @@ export function addDeck(userId, cateId, newDeckTitle) {
   console.log(userId);
   console.log(cateId);
   console.log(newDeckTitle);
-  return dispatch => {
+  return (dispatch) => {
     axios
       .post("http://localhost:4000/deck/infoDeck", {
         user_id: userId,
         category_id: cateId,
-        title: newDeckTitle
+        title: newDeckTitle,
       })
-      .then(res => {
+      .then((res) => {
         console.log("successfully added deck to db!");
         console.log(res);
         dispatch(addDeckToStore(cateId, newDeckTitle));
         dispatch(updateUserDecks());
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -201,14 +201,14 @@ export function addDeckToStore(cateId, newDeckTitle) {
   return {
     type: ADD_DECK,
     category_id: cateId,
-    newDeckTitle: newDeckTitle
+    newDeckTitle: newDeckTitle,
   };
 }
 
 export function activateDeckCheckbox() {
   console.log("delete button clicked");
   return {
-    type: ACTIVATE_DECK_CHECKBOX
+    type: ACTIVATE_DECK_CHECKBOX,
   };
 }
 /*
@@ -277,7 +277,7 @@ export function editCategory(oldCategory, newCategory) {
   return {
     type: EDIT_CATEGORY,
     oldCategory: oldCategory,
-    newCategory: newCategory
+    newCategory: newCategory,
   };
 }
 
@@ -299,14 +299,14 @@ export function activateDeckInput(i, j) {
   return {
     type: ACTIVATE_DECK_INPUT,
     categoryIdx: i,
-    deckIdx: j
+    deckIdx: j,
   };
 }
 export function disactivateDeckInput(i, j) {
   return {
     type: DISACTIVATE_DECK_INPUT,
     categoryIdx: i,
-    deckIdx: j
+    deckIdx: j,
   };
 }
 
@@ -316,21 +316,21 @@ export function editDeckTitle(i, j, newTitle) {
     type: EDIT_DECK_TITLE,
     categoryIdx: i,
     deckIdx: j,
-    newTitle: newTitle
+    newTitle: newTitle,
   };
 }
 
 export function editDeckInServer(deckId, deckTitle) {
-  return dispatch => {
+  return (dispatch) => {
     axios
       .patch("http://localhost:4000/deck/deck", {
         id: deckId,
-        title: deckTitle
+        title: deckTitle,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -373,18 +373,18 @@ export function editDeckInServer(deckId, deckTitle) {
 // }
 
 export function deleteDeck(category, deckId) {
-  return dispatch => {
+  return (dispatch) => {
     axios
       .delete("http://localhost:4000/deck/deck", {
         data: {
-          id: deckId
-        }
+          id: deckId,
+        },
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
         dispatch(deleteDeckInStore(category, deckId));
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -395,7 +395,7 @@ export function deleteDeckInStore(cate, deckId /*deck*/) {
   return {
     type: DELETE_DECK,
     cate: cate,
-    deckId: deckId
+    deckId: deckId,
     //deck: deck
   };
 }

@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import firebase from "firebase/app";
 import { Link, Redirect, withRouter } from "react-router-dom";
 import { Button } from "@material-ui/core";
 // import { login } from "./UserFunctions";
@@ -8,6 +9,8 @@ import axios from "axios";
 //import google_logo from "../google_logo.png";
 import google_logo_2 from "../google_logo_2.png";
 import "../styles/Login.css";
+import { provider, UserRef, getUserRef } from "../firebase/index.ts";
+import { onSignInClick } from "../firebase";
 
 class Login extends Component {
   constructor(props) {
@@ -16,9 +19,86 @@ class Login extends Component {
       //tempToken: "",
       needSignUp: false,
     };
+    this.handleSignInSuccess = this.handleSignInSuccess.bind(this);
+  }
+
+  handleSignInSuccess(res) {
+    //! on? once?
+    console.log(res.user.uid);
+    UserRef.orderByChild("uuid")
+      .equalTo(res.user.uid)
+      .on("value", (snap) => {
+        if (!snap.exists()) {
+          this.props.history.push("/signup");
+        } else {
+          console.log("registered user");
+          console.log(snap.val());
+          const userKey = Object.keys(snap.val())[0];
+          const user = snap.val()[userKey];
+          this.props.setUserInfo(user);
+          this.props.history.push("/mypage");
+        }
+      });
+    // 아예 google signin이 처음인 경우
+    // const isUnregistered =
+    //   res.additionalUserInfo.isNewUser ||
+    //   firebase.auth().currentUser.metadata.creationTime ===
+    //     firebase.auth().currentUser.metadata.lastSignInTime;
+
+    // 토큰
+    //const token = res.credential.accessToken;
+    //localStorage.setItem("usertoken", token);
+  }
+
+  async handleSignInClick() {
+    /*const loginRes = await onSignInClick();
+    console.log(loginRes);*/
+    //이게 원래 로그인 버튼에 있던 핸들러 대신 붙인건데
+    //얘를 누르면 그냥 firebase auth에 로그인이 돼요
+    await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+    firebase
+      .auth()
+      .signInWithPopup(provider)
+      .then(this.handleSignInSuccess)
+      .catch(function (error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+        var email = error.email;
+        // The firebase.auth.AuthCredential type that was used.
+        var credential = error.credential;
+        // ...
+      });
+  }
+
+  handleSignUp() {}
+
+  componentDidMount() {
+    // firebase.auth().onAuthStateChanged(function (user) {
+    //   if (user) {
+    //     // User is signed in.
+    //     console.log("there is a user signed in");
+    //   } else {
+    //     // No user is signed in.
+    //     console.log("no user!");
+    //   }
+    // });
+    const user = firebase.auth().currentUser;
+
+    if (user) {
+      // User is signed in.
+      console.log("curr user");
+      console.log(user.uid);
+    } else {
+      // No user is signed in.
+      console.log("no curr user");
+    }
   }
 
   render() {
+    console.log(this.props.uuid);
+    console.log();
     if (this.props.isLogin) {
       return <Redirect to="/mypage" />; //!mypage
     }
@@ -27,7 +107,18 @@ class Login extends Component {
     }
     return (
       <div className="login" style={{ padding: "40px 0 0 0" }}>
-        <GoogleLogin
+        <Button
+          id="google-login-button"
+          onClick={this.handleSignInClick.bind(this)}
+        >
+          <img src={google_logo_2} className="google-logo" />
+          Sign in with Google
+        </Button>
+        {/* <Button id="sign-up-button" onClick={this.handleSignUp.bind(this)}>
+          Sign up
+        </Button> */}
+        {
+          /*<GoogleLogin
           clientId={GOOGLE_CLIENT_ID} //-> google access token -> Custard server에 전송
           //custard server는 google access token
           //구글 로그인 아이콘 바꾸려면:
@@ -61,7 +152,7 @@ config: {url: "/users/signin", method: "post", data: "{"googleIdToken":"eyJhbGci
 request: XMLHttpRequest {readyState: 4, timeout: 0, withCredentials: true, upload: XMLHttpRequestUpload, onreadystatechange: ƒ, …}
 __proto__: Object
                 */
-                console.log(response.data == "you need to signup");
+          /*console.log(response.data == "you need to signup");
                 if (response.data == "you need to signup") {
                   this.setState({ needSignUp: true });
                 } else if (response.status === 200) {
@@ -71,11 +162,11 @@ __proto__: Object
                   localStorage.setItem("usertoken", response.data);
                   localStorage.removeItem(localStorage);
                   this.props.setLogin();
-                  this.props.updateUserInfo(response.data);
+                  this.props.initUser(response.data);
                   return <Redirect to="/mypage" />;
                 }
-              });
-            /*
+              });*/
+          /*
             Zw {Ca: "101386552392099643900", uc: {…}, Rt: ax, googleId: "101386552392099643900", tokenObj: {…}, …}
 Ca: "101386552392099643900"
 uc: {token_type: "Bearer", access_token: "ya29.a0Ae4lvC37ZsFBdXsHP2ea1O1x5u9H6EQZl0GBObRDuSa…K1hbxOINNMAtKiWsUTMBsB53tNwaLF2gq_i9OAdZYewKbxDoQ", scope: "email profile https://www.googleapis.com/auth/user… https://www.googleapis.com/auth/userinfo.profile", login_hint: "AJDLj6JUa8yxXrhHdWRHIV0S13cAx9pMpsCRSWilRd-7p5opa-y4EpuypFAP8qT9NDOZdMUxGMev-rNblhXUWn1m80sING3beQ", expires_in: 3599, …}
@@ -87,13 +178,15 @@ accessToken: "ya29.a0Ae4lvC37ZsFBdXsHP2ea1O1x5u9H6EQZl0GBObRDuSae7ZAulGhu3ILvwpd
 profileObj: {googleId: "101386552392099643900", imageUrl: "https://lh3.googleusercontent.com/-eFZZhTKQXao/AAA…AKWJJOunJP5oFTQBZsYzAjLl9UY8JpbJw/s96-c/photo.jpg", email: "gooogyeong@gmail.com", name: "Minkyung Lee", givenName: "Minkyung", …}
 __proto__: Object
             */
-            //this.props.requestLogin(result);
-          }.bind(this)}
+          //this.props.requestLogin(result);
+          /*}.bind(this)}
           onFailure={(err) => console.log(err)}
-        />
+        />*/
+        }
         {/*<Link to="/signup">회원가입</Link>*/}
       </div>
     );
   }
 }
+
 export default withRouter(Login);

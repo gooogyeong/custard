@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import firebase from "firebase/app";
 import { Link, Switch, Redirect } from "react-router-dom";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { connect } from "react-redux";
@@ -12,7 +13,7 @@ import AddCard from "./containers/AddCard";
 import Signup from "./containers/Signup";
 import Score from "./containers/Score";
 
-import { updateUserInfo } from "./actions/mypageActions";
+import { initUser } from "./actions/mypageActions";
 
 import custard_logo_1 from "./custard_logo_1.png";
 import custard_logo_2 from "./custard_logo_2.png";
@@ -35,7 +36,15 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.props.updateUserInfo();
+    const user = firebase.auth().currentUser;
+    if (user) {
+      this.props.initUser(user.uid);
+      //console.log("curr user");
+      //console.log(user.uid);
+    } else {
+      // No user is signed in.
+      return <Redirect to="/login" />;
+    }
   }
 
   render() {
@@ -195,8 +204,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    updateUserInfo: () => {
-      dispatch(updateUserInfo());
+    initUser: () => {
+      dispatch(initUser());
     },
   };
 };

@@ -59,12 +59,12 @@ class Card extends Component {
 
   //수정시에도 Ctrl + Shift + s 단축키 사용가능하도록 추가
   handleAnswerInputKeyUp(i, e) {
-    console.log("key up");
+    //console.log("key up");
     //if (e.ctrlKey && e.shiftKey && e.which == 83) {
-    console.log("Ctrl + Shift + s clicked");
+    //console.log("Ctrl + Shift + s clicked");
     const wholeText = e.target.value;
     const selectedText = document.getSelection().toString();
-    console.log(selectedText);
+    //console.log(selectedText);
     const count = this.state.answerTargetCount;
     const markedUpText =
       wholeText.slice(0, wholeText.indexOf(selectedText)) +
@@ -99,10 +99,10 @@ class Card extends Component {
     const { cate_route, title } = this.props.match.params;
     //const { decks } = this.props;
     const { category } = this.props;
-    console.log(this.props.category);
-    console.log("category", category);
-    console.log("cards:", cards);
-    console.log(this.props.editCardtype);
+    // console.log(this.props.category);
+    // console.log("category", category);
+    // console.log("cards:", cards);
+    // console.log(this.props.editCardtype);
     // const { history } = this.props;
     // console.log(cards);
     // console.log(decks);

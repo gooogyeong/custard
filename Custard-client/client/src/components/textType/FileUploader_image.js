@@ -5,7 +5,7 @@ class ReactUploadImage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      file: null
+      file: null,
     };
     this.onFormSubmit = this.onFormSubmit.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -16,15 +16,15 @@ class ReactUploadImage extends React.Component {
     formData.append("myImage", this.state.file);
     const config = {
       headers: {
-        "content-type": "multipart/form-data"
-      }
+        "content-type": "multipart/form-data",
+      },
     };
     axios
       .post("http://localhost:4000/card/cardInfo", formData, config)
-      .then(response => {
+      .then((response) => {
         alert("The file is successfully uploaded");
       })
-      .catch(error => {});
+      .catch((error) => {});
   }
   onChange(e) {
     this.setState({ file: e.target.files[0] });

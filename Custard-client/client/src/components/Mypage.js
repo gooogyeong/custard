@@ -5,7 +5,7 @@ import { Button } from "@material-ui/core";
 import jwt_decode from "jwt-decode";
 import axios from "axios";
 import { GoogleLogout } from "react-google-login";
-
+import firebase from "firebase/app";
 import { GOOGLE_CLIENT_ID } from "../config/googleClientId";
 import { signOutInStore } from "../actions/mypageActions";
 import "../styles/Mypage.css";
@@ -30,9 +30,9 @@ export default class Mypage extends Component {
     // profileURL: "https://cookingwithdog.com/wp-content/uploads/2017/01/custard-pudding-00.jpg"
     //* 이게 넘어오는데 쓸 수 있을까?
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
-
+    this.signOutInStoreFromMyPage = this.signOutInStoreFromMyPage.bind(this);
     this.handleFileChange = this.handleFileChange.bind(this);
-
+    this.handleSignOut = this.handleSignOut.bind(this);
     this.plzImage = this.plzImage.bind(this);
     this.handleGoogleLogout = this.handleGoogleLogout.bind(this);
 
@@ -51,15 +51,31 @@ export default class Mypage extends Component {
     });
   }
 
+  signOutInStoreFromMyPage() {
+    console.log(this);
+    console.log("sign out successful");
+    this.props.signOutInStore();
+  }
+
+  handleSignOut() {
+    console.log("firebase logout");
+    firebase
+      .auth()
+      .signOut()
+      .then(this.signOutInStoreFromMyPage)
+      .catch(function (error) {
+        // An error happened.
+      });
+  }
+
   handleGoogleLogout() {
-    // e.preventDefault();
+    console.log("logout success!");
     localStorage.removeItem("usertoken"); //* local storage remove item
-    //alert("localstorage cleared!");
     this.props.signOutInStore();
   }
 
   componentDidMount() {
-    this.props.updateUserInfo();
+    //this.props.initUser();
   }
 
   handleFormSubmit(e) {
@@ -76,10 +92,7 @@ export default class Mypage extends Component {
   //   //!  FormData 인터페이스의 append() 메서드는 FormData 객체의 기존 키에 새 값을 추가하거나, 키가 없는 경우 키를 추가합니다.
   //   //? MDN  https://developer.mozilla.org/ko/docs/Web/API/FormData/append
   plzImage() {
-    //!  FormData 인터페이스의 append() 메서드는 FormData 객체의 기존 키에 새 값을 추가하거나, 키가 없는 경우 키를 추가합니다.
-    //? MDN  https://developer.mozilla.org/ko/docs/Web/API/FormData/append
-
-    const url = "localhost:4000/users/profiles";
+    const url = "http://localhost:4000/users/profiles";
     const formData = new FormData();
     formData.append("image", this.state.fileObj);
     formData.append("email", this.props.mypage.email);
@@ -96,14 +109,12 @@ export default class Mypage extends Component {
   }
 
   render() {
+    console.log(this.props.mypage.isLogin);
+    console.log(this.props);
     if (!this.props.mypage.isLogin) {
       return <Redirect to="/login" />;
     }
-    //console.log(this.props);
     const { image /*, id*/ } = this.props.mypage;
-    //console.log(this.state.fileObj);
-    //console.log(this.state.fileName);
-
     const { mypage } = this.props;
     //let profileImg = `http://localhost:4000${this.props.mypage.image}`;
     return (
@@ -134,10 +145,10 @@ export default class Mypage extends Component {
             </button>
           </div>
         </form>
-
-        {/* <div>username: {this.props.username}</div> */}
-        {/* <div>user rank</div> */}
-        <GoogleLogout
+        <Button id="logout-button" onClick={this.handleSignOut}>
+          Sign out
+        </Button>
+        {/*<GoogleLogout
           clientId={GOOGLE_CLIENT_ID}
           buttonText="Logout"
           onLogoutSuccess={this.handleGoogleLogout}
@@ -150,7 +161,7 @@ export default class Mypage extends Component {
               Sign out
             </Button>
           )}
-        />
+          />*/}
       </div>
     );
   }

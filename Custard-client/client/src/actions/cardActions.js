@@ -14,14 +14,14 @@ export const HINTED_SCORE = "HINTED_SCORE";
 
 //TODO: 기능들이 실제로 화면에서 보여지도록 클라이언트 작업 필요
 export function getDeckCards(/*card*/) {
-  return dispatch => {
+  return (dispatch) => {
     axios
       .get("http://localhost:4000/card/cardInfo")
-      .then(res => {
+      .then((res) => {
         //console.log(res.data);
         dispatch(showCard(res.data));
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error);
       });
   };
@@ -30,7 +30,7 @@ export function getDeckCards(/*card*/) {
 export function showCard(cards) {
   return {
     type: SHOW_CARD,
-    cards: cards
+    cards: cards,
   };
 }
 
@@ -61,7 +61,7 @@ export function addCard(/*cardType, */ category, deckId, validAddCardForm) {
           const str = answerTargetArr[answerTarget[i][2] - 1];
           answerTargetArr[answerTarget[i][2] - 1] = [
             str,
-            answerTarget[i].slice(3, answerTarget[i].length - 1)
+            answerTarget[i].slice(3, answerTarget[i].length - 1),
           ];
         }
       }
@@ -79,7 +79,7 @@ export function addCard(/*cardType, */ category, deckId, validAddCardForm) {
     validAddCardForm[i].marked = false;
   }
   console.log(validAddCardForm);
-  const promises = validAddCardForm.map(cardForm =>
+  const promises = validAddCardForm.map((cardForm) =>
     axios
       .post("http://localhost:4000/card/cardInfo", {
         deck_id: cardForm.deckId,
@@ -87,17 +87,17 @@ export function addCard(/*cardType, */ category, deckId, validAddCardForm) {
         question: cardForm.question,
         answer: cardForm.answer,
         answer_target: String(cardForm["answer_target"]),
-        hint: cardForm.note
+        hint: cardForm.note,
       })
       .then(({ data }) => data)
   );
-  return dispatch => {
+  return (dispatch) => {
     Promise.all(promises)
-      .then(res => {
+      .then((res) => {
         console.log(res);
         dispatch(addCardToStore(validAddCardForm));
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -106,7 +106,7 @@ export function addCard(/*cardType, */ category, deckId, validAddCardForm) {
 export function addCardToStore(validAddCardForm) {
   return {
     type: ADD_CARD,
-    newCardArr: validAddCardForm
+    newCardArr: validAddCardForm,
   };
 }
 
@@ -121,7 +121,7 @@ export function editCardInServer(
   hint
 ) {
   // return dispatch => {
-  return dispatch => {
+  return (dispatch) => {
     axios
       .patch("http://localhost:4000/card/up-card ", {
         // data: {
@@ -130,14 +130,14 @@ export function editCardInServer(
         question: question,
         answer: answer,
         answer_target: answer_target,
-        hint: hint
+        hint: hint,
         // }
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
         console.log(res.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -145,17 +145,17 @@ export function editCardInServer(
 
 //* 수정한 카드의 cardtype, question, answer, hint 불러옴
 export function editCard(cardId) {
-  return dispatch => {
+  return (dispatch) => {
     axios
       .post("http://localhost:4000/card/up-card", {
-        id: cardId
+        id: cardId,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
         console.log(res.data);
         dispatch(editCardInStore(res.data));
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -163,7 +163,7 @@ export function editCard(cardId) {
 export function editCardInStore(id) {
   return {
     type: EDIT_CARD,
-    id: id
+    id: id,
   };
 }
 
@@ -172,14 +172,14 @@ export function editCardtype(originType, currentType) {
   return {
     type: EDIT_CARDTYPE,
     originType: originType,
-    currentType: currentType
+    currentType: currentType,
   };
 }
 export function editQuestion(originQ, currentQ) {
   return {
     type: EDIT_QUESTION,
     originQ: originQ,
-    currentQ: currentQ
+    currentQ: currentQ,
   };
 }
 export function editAnswer(originA, currentA) {
@@ -188,14 +188,14 @@ export function editAnswer(originA, currentA) {
   return {
     type: EDIT_ANSWER,
     originA: originA,
-    currentA: currentA
+    currentA: currentA,
   };
 }
 export function editHint(originH, currentH) {
   return {
     type: EDIT_HINT,
     originH: originH,
-    currentH: currentH
+    currentH: currentH,
   };
 }
 
@@ -204,16 +204,16 @@ export function deleteCard(cardId) {
   console.log("trying to delete cardin db");
   console.log(cardId);
   console.log(typeof cardId);
-  return dispatch => {
+  return (dispatch) => {
     axios
       .delete("http://localhost:4000/card/up-card ", {
-        data: { id: cardId }
+        data: { id: cardId },
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
         dispatch(deleteCardInStore(cardId));
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -224,7 +224,7 @@ export function deleteCardInStore(id) {
   console.log("delete card action");
   return {
     type: DELETE_CARD,
-    id: id
+    id: id,
   };
 }
 
@@ -235,37 +235,37 @@ export function handleCorrectAnswer(cardId) {
   console.log(typeof cardId);
   return {
     type: CORRECT_ANSWER,
-    cardId: cardId
+    cardId: cardId,
   };
 }
 export function handleCorrectInServer(cardId) {
   console.log(cardId);
-  return dispatch => {
+  return (dispatch) => {
     axios
       .patch("http://localhost:4000/card/correct", {
-        id: cardId
+        id: cardId,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
         console.log(res.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
 }
 export function handleCorrectScore(cardId) {
   console.log(cardId);
-  return dispatch => {
+  return (dispatch) => {
     axios
       .post("http://localhost:4000/card/correct", {
-        id: cardId
+        id: cardId,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
         // dispatch(correctCardInStore(cardId));
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -280,37 +280,37 @@ export function handleCorrectScore(cardId) {
 export function handleWrongAnswer(cardId) {
   return {
     type: WRONG_ANSWER,
-    cardId: cardId
+    cardId: cardId,
   };
 }
 export function handleWrongInServer(cardId) {
   console.log(cardId);
-  return dispatch => {
+  return (dispatch) => {
     axios
       .patch("http://localhost:4000/card/wrong", {
-        id: cardId
+        id: cardId,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
         console.log(res.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
 }
 export function handleWrongScore(cardId) {
   console.log(cardId);
-  return dispatch => {
+  return (dispatch) => {
     axios
       .post("http://localhost:4000/card/wrong", {
-        id: cardId
+        id: cardId,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
         // dispatch(wrongCardInStore(cardId));
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -324,31 +324,31 @@ export function handleWrongScore(cardId) {
 //*********** Marked & Hinted *******************/
 export function handleMarkedInServer(cardId) {
   console.log(cardId);
-  return dispatch => {
+  return (dispatch) => {
     axios
       .patch("http://localhost:4000/card/marked", {
-        id: cardId
+        id: cardId,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
         console.log(res.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
 }
 export function handleMarkedPost(cardId) {
   console.log(cardId);
-  return dispatch => {
+  return (dispatch) => {
     axios
       .post("http://localhost:4000/card/marked", {
-        id: cardId
+        id: cardId,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
@@ -356,31 +356,31 @@ export function handleMarkedPost(cardId) {
 
 export function handleHintedInServer(cardId) {
   console.log(cardId);
-  return dispatch => {
+  return (dispatch) => {
     axios
       .patch("http://localhost:4000/card/hinted", {
-        id: cardId
+        id: cardId,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
         console.log(res.data);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };
 }
 export function handleHintedPost(cardId) {
   console.log(cardId);
-  return dispatch => {
+  return (dispatch) => {
     axios
       .post("http://localhost:4000/card/hinted", {
-        id: cardId
+        id: cardId,
       })
-      .then(res => {
+      .then((res) => {
         console.log(res);
       })
-      .catch(error => {
+      .catch((error) => {
         console.log(error.message);
       });
   };

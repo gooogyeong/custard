@@ -1,15 +1,42 @@
 import React, { Component } from "react";
+import styled from "styled-components";
 import axios from "axios";
 import debounce from "lodash/debounce"; //* 이메일 인증 함수가 반복적으로 요청 되지 않기 하기 위한 라이브러리입니다.
 import { Route, Link, Redirect } from "react-router-dom";
 import LoginRoot from "./LoginRoot";
 import { register } from "./UserFunctions";
 import { Button } from "@material-ui/core";
+import { UserRef, getUserRef, createNewUser } from "../firebase";
+
+const SignUpWrapper = styled.div`
+  text-align: center;
+  margin: 0 0 0 250px;
+  padding-left: 20px;
+  .signup-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .signup-info {
+    width: 300px;
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    grid-gap: 5px;
+    margin-bottom: 10px;
+  }
+  .signup-info-field {
+    text-align: right;
+  }
+  .signup-button-container {
+    margin-top: 10px;
+  }
+`;
 
 export default class Signup extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      uuid: "",
       username: "", //*         유저이름
       isName: false, //*        이름 확인
       email: "", //*         이메일
@@ -19,13 +46,11 @@ export default class Signup extends Component {
       errors: {},
       isSignup: false,
     };
-    // this.onChange = this.onChange.bind(this);
     this.onClick = this.onClick.bind(this);
+    this.handleEmailChange = this.handleEmailChange.bind(this);
+    this.handleUsernameChange = this.handleUsernameChange.bind(this);
+    this.handleSignUpClick = this.handleSignUpClick.bind(this);
   }
-  // onChange(e) {
-  //   this.setState({ [e.target.name]: e.target.value });
-  // }
-
   //* 이름 체크 하는 메서드
   //* username 필드에 새로운 값을 입력 할 때 마다 입력값이 인자로 전달.
 
@@ -117,19 +142,10 @@ export default class Signup extends Component {
       email: this.state.email, // * 이메일
       //password: this.state.password // * 비밀번호
     };
-
-    //console.log(newUser, "넘어간 유저정보"); //* 비밀번호까지 다 보이니 테스트 이후에는 삭제 바랍니다 ~~
-    // console.log(this.props);
-    // this.props.register(newUser);
-    // .then(res => {
-    //   //? 화살표 함수
-    //   this.props.history.push(`/login`);
-    // });
     return axios
       .post("http://localhost:4000/users/signup", {
         username: newUser.username,
         email: newUser.email,
-        //password: newUser.password
         googleIdToken: this.props.token,
       })
       .then((res) => {
@@ -138,91 +154,78 @@ export default class Signup extends Component {
       });
   }
 
+  handleEmailChange(e) {
+    this.setState({ email: e.target.value });
+  }
+
+  handleUsernameChange(e) {
+    this.setState({ username: e.target.value });
+  }
+
+  handleSignUpClick() {
+    //const newUserPath = UserRef.push().key;
+    //const uuid = this.props.uuid;
+    //const currUserRef = getUserRef(newUserPath);
+    createNewUser({
+      uuid: this.props.uuid,
+      email: this.state.email,
+      username: this.state.username,
+    });
+  }
+
   render() {
-    if (this.state.isSignup) {
-      return <Redirect to="/login" />;
-    }
+    // if (this.state.isSignup) {
+    //   return <Redirect to="/login" />;
+    // }
+    console.log(this.props.uuid);
+    console.log(this.state);
+    console.log(this.state.email);
+    console.log(this.state.username);
     const { register } = this.props;
-    console.log(register);
     return (
-      <div
-        id="signup-container"
-        style={{
-          textAlign: "center",
-          margin: "0 0 0 250px",
-        }}
-      >
+      <SignUpWrapper>
         <div className="app">
           <div className="row">
-            {/* <form noValidate onSubmit={this.onSubmit}> */}
-            {/* <form noValidate> */}
-            <form className="myForm">
-              {/*<h1>Join Custard</h1>*/}
-
-              <div className="form-group">
-                <label htmlFor="name">User name </label>
+            <div className="signup-form">
+              <div className="signup-info">
+                <label className="signup-info-field" htmlFor="name">
+                  user name{" "}
+                </label>
                 <input
                   type="text"
                   className=""
                   name="username"
                   id="nameInput"
-                  placeholder="닉네임을 입력하세요"
-                  // onChange={this.onChange}
-                  onChange={(e) => this.checkedName(e.target.value)}
+                  placeholder=" enter custard user name"
+                  onChange={(e) => this.setState({ username: e.target.value })}
                   required
                 />
               </div>
-
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
+              <div className="signup-info">
+                <label className="signup-info-field" htmlFor="email">
+                  email
+                </label>
                 <input
                   type="email"
                   className=""
                   name="email"
-                  placeholder="이메일을 입력하세요"
+                  placeholder=" enter email"
                   id="emailInput"
                   aria-describedby="emailHelp"
-                  onChange={(e) => this.checkedEmail(e.target.value)}
+                  onChange={(e) => this.setState({ email: e.target.value })}
                   required
                 />
                 {this.emailFeedback()}
               </div>
-
-              {/* <div className="form-group">
-                <label htmlFor="passwordInput">Password</label>
-                <input
-                  type="password"
-                  className=""
-                  id="passwordInput"
-                  name="password"
-                  placeholder="비밀번호를 입력하세요"
-                  onChange={e => this.passwordInput(e.target.value)}
-                  required
-                />
-              </div> */}
-
-              {/* <div className="form-group">
-              <label htmlFor="checkPasswordInput">패스워드 확인</label>
-                <input
-                  type="password"
-                  className=""
-                  id="checkPasswordInput"
-                  placeholder="비밀번호를 입력하세요"        
-                  onChange={e =>
-                    this.checkPasswordInput(e.target.value)
-                  }
-                  required
-                />
-                 {this.passwordFeedback()}
-              </div> */}
-              <br></br>
-              <Button onClick={this.onClick} className="">
-                가입하기
-              </Button>
-            </form>
+              <div className="signup-button-container">
+                <Button onClick={this.handleSignUpClick} className="">
+                  JOIN
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </SignUpWrapper>
     );
   }
 }

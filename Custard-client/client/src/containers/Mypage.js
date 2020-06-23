@@ -2,38 +2,43 @@ import Mypage from "../components/Mypage";
 import { connect } from "react-redux";
 import {
   setLogin,
+  setUserInfo,
   addProfile,
-  updateUserInfo,
+  initUser,
   handleSignOut,
-  signOutInStore
+  signOutInStore,
 } from "../actions/mypageActions";
 
 //TODO: 얘 파일명 MypageContainer로 바꾸는거 안되는지 시도해보길 바람
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     mypage: state.mypage,
-    isLogin: state.mypage.isLogin
+    isLogin: state.mypage.isLogin,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
     setLogin: () => {
       dispatch(setLogin());
     },
-    updateUserInfo: () => {
-      dispatch(updateUserInfo());
+    initUser: () => {
+      dispatch(initUser());
     },
-    addProfile: profile => {
+    setUserInfo: (user) => {
+      dispatch(setUserInfo(user));
+    },
+    addProfile: (profile) => {
       dispatch(addProfile(profile));
     },
     handleSignOut: () => {
       dispatch(handleSignOut());
     },
     signOutInStore: () => {
+      console.log("singout in store from container");
       dispatch(signOutInStore());
-    }
+    },
   };
 };
 
