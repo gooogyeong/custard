@@ -13,7 +13,7 @@ import AddCard from "./containers/AddCard";
 import Signup from "./containers/Signup";
 import Score from "./containers/Score";
 
-import { initUser } from "./actions/mypageActions";
+import { initUser, checkAuthPersistence } from "./actions/mypageActions";
 
 import custard_logo_1 from "./custard_logo_1.png";
 import custard_logo_2 from "./custard_logo_2.png";
@@ -36,20 +36,13 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const user = firebase.auth().currentUser;
-    if (user) {
-      this.props.initUser(user.uid);
-      //console.log("curr user");
-      //console.log(user.uid);
-    } else {
-      // No user is signed in.
-      return <Redirect to="/login" />;
-    }
+    console.log("app component mounting");
+    this.props.checkAuthPersistence();
   }
 
   render() {
     const { isLogin } = this.props;
-    //console.log(isLogin);
+    console.log(isLogin);
     return (
       <div>
         <div id="login-logo-container">
@@ -204,6 +197,9 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    checkAuthPersistence: () => {
+      dispatch(checkAuthPersistence);
+    },
     initUser: () => {
       dispatch(initUser());
     },

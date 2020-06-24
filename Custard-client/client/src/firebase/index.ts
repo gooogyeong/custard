@@ -8,8 +8,10 @@ import { firebaseConfig } from "./config";
 import "firebase/auth";
 import "firebase/database";
 import "firebase/functions";
+import "firebase/storage";
 const app: firebase.app.App = firebase.initializeApp(firebaseConfig);
 const database: firebase.database.Database = app.database();
+const storage: firebase.storage.Storage = app.storage();
 //export const auth: firebase.app.App = firebase.auth();
 
 export const provider: firebase.auth.GoogleAuthProvider = new firebase.auth.GoogleAuthProvider();
@@ -18,6 +20,8 @@ export const provider: firebase.auth.GoogleAuthProvider = new firebase.auth.Goog
 const custardPath = "custard-937a9";
 
 export const UserRef = database.ref(`User`);
+
+export const profileImgRef = storage.ref("Profile");
 
 export const getUserRef = (userPath: string) => UserRef.child(userPath);
 
@@ -29,9 +33,10 @@ interface User {
 
 export const createNewUser = (user: User) => {
   //auto-generated key를 사용하는 것에 대해: https://stackoverflow.com/questions/45898277/writing-firebase-database-without-using-their-auto-generated-key-in-android
+  console.log("creating new user");
   const newUserPath = UserRef.push().key;
   const currUserRef = getUserRef(newUserPath);
-  currUserRef.set(user);
+  return currUserRef.set(user);
 };
 
 export const onSignInClick = firebase

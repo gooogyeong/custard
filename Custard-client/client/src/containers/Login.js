@@ -1,6 +1,9 @@
 import Login from "../components/Login";
 import { connect } from "react-redux";
 import {
+  checkAuthPersistence,
+  checkIfRegistered,
+  createNewUser,
   setCurrUUID,
   login,
   setLogin,
@@ -15,13 +18,23 @@ function mapStateToProps(state) {
   return {
     uuid: state.mypage.uuid,
     isLogin: state.mypage.isLogin,
+    isSignUp: state.mypage.isSignUp,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
+    checkAuthPersistence: () => {
+      dispatch(checkAuthPersistence());
+    },
+    checkIfRegistered: (uuid) => {
+      dispatch(checkIfRegistered(uuid));
+    },
     setCurrUUID: (uuid) => {
       dispatch(setCurrUUID(uuid));
+    },
+    createNewUser: (user) => {
+      dispatch(createNewUser(user));
     },
     setUserInfo: (user) => {
       dispatch(setUserInfo(user));

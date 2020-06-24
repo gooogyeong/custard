@@ -1,6 +1,7 @@
 import Mypage from "../components/Mypage";
 import { connect } from "react-redux";
 import {
+  checkAuthPersistence,
   setLogin,
   setUserInfo,
   addProfile,
@@ -20,15 +21,16 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    // checkAuthPersistence: () => {
+    //   checkAuthPersistence();
+    // },
     setLogin: () => {
       dispatch(setLogin());
     },
     initUser: () => {
       dispatch(initUser());
     },
-    setUserInfo: (user) => {
-      dispatch(setUserInfo(user));
-    },
+
     addProfile: (profile) => {
       dispatch(addProfile(profile));
     },

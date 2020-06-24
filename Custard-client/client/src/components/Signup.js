@@ -166,17 +166,24 @@ export default class Signup extends Component {
     //const newUserPath = UserRef.push().key;
     //const uuid = this.props.uuid;
     //const currUserRef = getUserRef(newUserPath);
-    createNewUser({
+    this.props.createNewUser({
       uuid: this.props.uuid,
       email: this.state.email,
       username: this.state.username,
     });
+    // .then(() => {
+    //   return <Redirect to="/login" />;
+    // });
+
+    //this.props.history.push("/login");
   }
 
   render() {
-    // if (this.state.isSignup) {
-    //   return <Redirect to="/login" />;
-    // }
+    console.log(!this.props.uuid);
+    console.log(!this.props.isSignUp);
+    if (!this.props.uuid || !this.props.isSignUp) {
+      return <Redirect to="/login" />;
+    }
     console.log(this.props.uuid);
     console.log(this.state);
     console.log(this.state.email);

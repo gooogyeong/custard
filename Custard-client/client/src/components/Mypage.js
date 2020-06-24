@@ -101,16 +101,17 @@ export default class Mypage extends Component {
         "content-type": "multipart/form-data",
       },
     };
-    return axios.patch(url, formData, config).then((res) => {
-      console.log(res.data);
-      //* Rows matched: 1  Changed: 1  Warnings: 0  보낸 파일에 대한 응답 (서버에서 저거 뜨면 적용이 잘 됩니다!)
-      this.componentDidMount();
-    });
+    console.log(formData);
+    // return axios.patch(url, formData, config).then((res) => {
+    //   console.log(res.data);
+    //   //* Rows matched: 1  Changed: 1  Warnings: 0  보낸 파일에 대한 응답 (서버에서 저거 뜨면 적용이 잘 됩니다!)
+    //   this.componentDidMount();
+    // });
   }
 
   render() {
     console.log(this.props.mypage.isLogin);
-    console.log(this.props);
+    console.log(this.props.mypage.uuid);
     if (!this.props.mypage.isLogin) {
       return <Redirect to="/login" />;
     }

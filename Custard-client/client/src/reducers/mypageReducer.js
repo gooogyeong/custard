@@ -1,14 +1,18 @@
-import { SET_UUID } from "../actions/mypageActions";
+import {
+  SET_UUID,
+  SET_SIGN_UP,
+  FINISH_SIGN_UP,
+} from "../actions/mypageActions";
 
 const initialState = {
   uuid: "",
-  //id: 0,
   email: "",
   username: "stranger",
   isLogin: false, //true, //TODO: default값 false로 바꿔야함
   image: "",
   //"https://cookingwithdog.com/wp-content/uploads/2017/01/custard-pudding-00.jpg",
   token: "",
+  isSignUp: false,
 };
 
 const reducer = (state = initialState, action) => {
@@ -19,6 +23,10 @@ const reducer = (state = initialState, action) => {
       return Object.assign({}, state, { token: action.token });
     case "SET_LOGIN":
       return Object.assign({}, state, { isLogin: true });
+    case SET_SIGN_UP:
+      return Object.assign({}, state, { isSignUp: true });
+    case FINISH_SIGN_UP:
+      return Object.assign({}, state, { isSignUp: false });
     case "UPDATE_USER_INFO":
       return Object.assign({}, state, {
         isLogin: true,
