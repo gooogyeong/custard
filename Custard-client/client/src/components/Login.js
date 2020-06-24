@@ -72,7 +72,7 @@ class Login extends Component {
   handleSignUp() {}
 
   componentDidMount() {
-    //this.props.checkAuthPersistence();
+    this.props.checkAuthPersistence();
   }
 
   render() {
