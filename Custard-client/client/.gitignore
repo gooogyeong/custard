@@ -2,7 +2,7 @@
 
 #config
 /src/config/googleClientId.js
-/src/fiebase/config.ts
+src/firebase/config.ts
 
 # dependencies
 /node_modules
