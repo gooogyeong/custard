@@ -80,7 +80,6 @@ class Login extends Component {
     if (this.props.isLogin) {
       return <Redirect to="/mypage" />; //!mypage
     }
-    console.log(this.props.isSignUp);
     if (this.props.isSignUp) {
       console.log("you gotta signup");
       this.props.history.push("/signup");

@@ -4,6 +4,7 @@ import {
   checkAuthPersistence,
   setLogin,
   setUserInfo,
+  updateFirebaseStorage,
   addProfile,
   initUser,
   handleSignOut,
@@ -15,7 +16,9 @@ import {
 const mapStateToProps = (state) => {
   return {
     mypage: state.mypage,
-    isLogin: state.mypage.isLogin,
+    //isLogin: state.mypage.isLogin,
+    //uuid: state.mypage.uuid,
+    //username: state.mypage.username
   };
 };
 
@@ -30,7 +33,9 @@ const mapDispatchToProps = (dispatch) => {
     initUser: () => {
       dispatch(initUser());
     },
-
+    updateFirebaseStorage: (userKey, file) => {
+      dispatch(updateFirebaseStorage(userKey, file));
+    },
     addProfile: (profile) => {
       dispatch(addProfile(profile));
     },

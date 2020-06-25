@@ -32,6 +32,7 @@ export default class Mypage extends Component {
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
     this.signOutInStoreFromMyPage = this.signOutInStoreFromMyPage.bind(this);
     this.handleFileChange = this.handleFileChange.bind(this);
+    this.handleFileSaveClick = this.handleFileSaveClick.bind(this);
     this.handleSignOut = this.handleSignOut.bind(this);
     this.plzImage = this.plzImage.bind(this);
     this.handleGoogleLogout = this.handleGoogleLogout.bind(this);
@@ -49,6 +50,13 @@ export default class Mypage extends Component {
       fileObj: e.target.files[0],
       fileName: e.target.value,
     });
+  }
+
+  handleFileSaveClick() {
+    this.props.updateFirebaseStorage(
+      this.props.mypage.userKey,
+      this.state.fileObj
+    );
   }
 
   signOutInStoreFromMyPage() {
@@ -110,20 +118,20 @@ export default class Mypage extends Component {
   }
 
   render() {
-    console.log(this.props.mypage.isLogin);
-    console.log(this.props.mypage.uuid);
+    console.log(this.props.mypage.userKey);
     if (!this.props.mypage.isLogin) {
       return <Redirect to="/login" />;
     }
     const { image /*, id*/ } = this.props.mypage;
-    const { mypage } = this.props;
+    //const { mypage } = this.props;
     //let profileImg = `http://localhost:4000${this.props.mypage.image}`;
     return (
       <div className="mypage">
         <div className="welcome">Hello, {this.props.mypage.username}!</div>
         <div className="profile">
           <img
-            src={`http://localhost:4000${image}`}
+            src={this.props.mypage.profileImgURL}
+            //src={`http://localhost:4000${image}`}
             alt="profile"
             style={{
               width: 180,
@@ -141,7 +149,11 @@ export default class Mypage extends Component {
               file={this.state.file}
               onChange={this.handleFileChange.bind(this)}
             />
-            <button className="upload-button" type="submit">
+            <button
+              className="upload-button"
+              type="submit"
+              onClick={this.handleFileSaveClick}
+            >
               저장
             </button>
           </div>
@@ -149,20 +161,6 @@ export default class Mypage extends Component {
         <Button id="logout-button" onClick={this.handleSignOut}>
           Sign out
         </Button>
-        {/*<GoogleLogout
-          clientId={GOOGLE_CLIENT_ID}
-          buttonText="Logout"
-          onLogoutSuccess={this.handleGoogleLogout}
-          render={(renderProps) => (
-            <Button
-              id="logout-button"
-              onClick={renderProps.onClick}
-              disabled={renderProps.disabled}
-            >
-              Sign out
-            </Button>
-          )}
-          />*/}
       </div>
     );
   }

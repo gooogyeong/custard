@@ -6,11 +6,13 @@ import { Link, Redirect } from "react-router-dom";
 //import { UPDATE_USER_INFO } from "../../../../Wordmon-client/wordmon-client/src/actions/loginActions";
 import { UserRef, getUserRef } from "../firebase";
 import { User } from "../types";
+import { profileRef } from "../firebase";
 
 axios.defaults.withCredentials = true;
 //axios.defaults.headers.common['authorization'] = token ;
 
 export const SET_UUID = "SET_UUID";
+export const SET_USER_KEY = "SET_USER_KEY";
 export const SET_LOGIN = "SET_LOGIN";
 export const SET_SIGN_UP = "SET_SIGN_UP";
 export const FINISH_SIGN_UP = "FINISH_SIGN_UP";
@@ -42,10 +44,29 @@ export function checkAuthPersistence() {
         //만약 로그인된 유저가 있다면 그중에 current user가 있는지 확인한다
         const currUser = firebase.auth().currentUser;
         if (currUser) {
-          console.log(currUser.uid);
+          //dispatch(setCurrUUID(currUser.uid));
+
           dispatch(getUserInfo(currUser.uid)); //! dispatc
         }
       }
+    });
+  };
+}
+
+export function updateFirebaseStorage(userKey, fileObj) {
+  return (dispatch) => {
+    const newProfileChild = profileRef.child(`profile_${userKey}`);
+    const uploadFirebaseStorage = newProfileChild.put(fileObj);
+    uploadFirebaseStorage.on("state_changed", function complete() {
+      console.log("storage upload complete");
+
+      newProfileChild.getDownloadURL().then((url) => {
+        //console.log(url);
+        //const newUserPath = UserRef.push().key;
+        const currUserRef = getUserRef(userKey);
+        currUserRef.update({ profile_img_url: url });
+      });
+      //.then(dispatch(updateUserProfile(url)));
     });
   };
 }
@@ -56,12 +77,12 @@ export function getUserInfo(uuid) {
   return (dispatch) => {
     UserRef.orderByChild("uuid")
       .equalTo(uuid)
-      .once("value")
-      .then((snap) => {
+      .on("value", (snap) => {
         if (snap.exists()) {
           const userKey = Object.keys(snap.val())[0];
           const user = snap.val()[userKey];
           console.log(user);
+          dispatch(setUserKey(userKey));
           dispatch(setUserInfo(user));
         }
       });
@@ -79,6 +100,7 @@ export function checkIfRegistered(uuid) {
           const userKey = Object.keys(snap.val())[0];
           const user = snap.val()[userKey];
           console.log(user);
+
           dispatch(setUserInfo(user));
         } else {
           console.log("you need to signup!");
@@ -86,6 +108,17 @@ export function checkIfRegistered(uuid) {
           dispatch(setSignUp());
         }
       });
+  };
+}
+
+function setUserKey(userKey) {
+  console.log("setting user key");
+  console.log(userKey);
+  return {
+    type: SET_USER_KEY,
+    payload: {
+      userKey: userKey,
+    },
   };
 }
 
@@ -97,7 +130,15 @@ function setSignUp() {
 
 export const createNewUser = (user /*:User*/) => {
   //auto-generated key를 사용하는 것에 대해: https://stackoverflow.com/questions/45898277/writing-firebase-database-without-using-their-auto-generated-key-in-android
-  return (dispatch) => {
+  return async (dispatch) => {
+    const defaultProfileImgURL = await profileRef
+      .child("profile_default.jpg")
+      .getDownloadURL();
+    // .then((url) => {
+    //   user.profileImgURL = url
+    // });
+    user["profile_img_url"] = defaultProfileImgURL;
+    console.log(user);
     console.log("creating new user");
     const newUserPath = UserRef.push().key;
     const currUserRef = getUserRef(newUserPath);
@@ -121,10 +162,10 @@ export function setUserInfo(user) {
     type: UPDATE_USER_INFO,
     payload: {
       userInfo: {
-        uuid: user.id,
+        uuid: user.uuid,
         email: user.email,
         username: user.username,
-        image: user.image,
+        profileImgURL: user.profile_img_url,
       },
     },
   };

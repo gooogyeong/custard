@@ -170,6 +170,8 @@ export default class Signup extends Component {
       uuid: this.props.uuid,
       email: this.state.email,
       username: this.state.username,
+      profile_img_url:
+        "https://firebasestorage.googleapis.com/v0/b/custard-937a9.appspot.com/o/Profile%2Fprofile_default.jpg?alt=media&token=bdfeaa86-f5ef-49d7-8ee6-b883e824110e",
     });
     // .then(() => {
     //   return <Redirect to="/login" />;
@@ -184,10 +186,10 @@ export default class Signup extends Component {
     if (!this.props.uuid || !this.props.isSignUp) {
       return <Redirect to="/login" />;
     }
-    console.log(this.props.uuid);
-    console.log(this.state);
-    console.log(this.state.email);
-    console.log(this.state.username);
+    // console.log(this.props.uuid);
+    // console.log(this.state);
+    // console.log(this.state.email);
+    // console.log(this.state.username);
     const { register } = this.props;
     return (
       <SignUpWrapper>

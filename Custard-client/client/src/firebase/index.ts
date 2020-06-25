@@ -21,23 +21,12 @@ const custardPath = "custard-937a9";
 
 export const UserRef = database.ref(`User`);
 
-export const profileImgRef = storage.ref("Profile");
+//storage.ref() ?
+const rootRef = storage.ref();
+export const profileRef = storage.ref("Profile");
+//export const profileImgRef = rootRef.child("Profile");
 
 export const getUserRef = (userPath: string) => UserRef.child(userPath);
-
-interface User {
-  uuid: string;
-  email: string;
-  username: string;
-}
-
-export const createNewUser = (user: User) => {
-  //auto-generated key를 사용하는 것에 대해: https://stackoverflow.com/questions/45898277/writing-firebase-database-without-using-their-auto-generated-key-in-android
-  console.log("creating new user");
-  const newUserPath = UserRef.push().key;
-  const currUserRef = getUserRef(newUserPath);
-  return currUserRef.set(user);
-};
 
 export const onSignInClick = firebase
   .functions()
