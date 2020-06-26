@@ -45,7 +45,7 @@ export function checkAuthPersistence() {
         const currUser = firebase.auth().currentUser;
         if (currUser) {
           //dispatch(setCurrUUID(currUser.uid));
-
+          console.log(currUser.uid);
           dispatch(getUserInfo(currUser.uid)); //! dispatc
         }
       }
