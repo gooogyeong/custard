@@ -17,6 +17,7 @@
     "formik": "^2.1.4",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.15",
+    "mobx": "^5.15.4",
     "react": "^16.13.0",
     "react-csv-reader": "^3.0.4",
     "react-dom": "^16.13.0",

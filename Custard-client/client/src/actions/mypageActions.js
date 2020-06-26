@@ -1,9 +1,6 @@
 import firebase from "firebase/app";
-import axios from "axios";
 import { UserRef, getUserRef } from "../firebase";
 import { profileRef } from "../firebase";
-
-axios.defaults.withCredentials = true;
 
 export const SET_UUID = "SET_UUID";
 export const SET_USER_KEY = "SET_USER_KEY";
