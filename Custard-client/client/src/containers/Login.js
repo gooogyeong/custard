@@ -5,10 +5,8 @@ import {
   checkIfRegistered,
   createNewUser,
   setCurrUUID,
-  login,
   setLogin,
   initUser,
-  setTempToken,
   setUserInfo,
 } from "../actions/mypageActions";
 
@@ -39,14 +37,8 @@ function mapDispatchToProps(dispatch) {
     setUserInfo: (user) => {
       dispatch(setUserInfo(user));
     },
-    setTempToken: (token) => {
-      dispatch(setTempToken(token));
-    },
     setLogin: () => {
       dispatch(setLogin());
-    },
-    login: (user) => {
-      dispatch(login(user));
     },
     initUser: (uuid) => {
       dispatch(initUser(uuid));
