@@ -1,9 +1,14 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
+import { inject, observer } from "mobx";
 import { Button } from "@material-ui/core";
 import "../styles/Mypage.css";
 
-export default class Mypage extends Component {
+@inject((rootStore) => ({
+  userStore: rootStore.userStore,
+}))
+@observer
+class Mypage extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -29,6 +34,7 @@ export default class Mypage extends Component {
   }
 
   render() {
+    console.log(this.props.rootStore.userStore.uuid);
     if (!this.props.mypage.isLogin) {
       return <Redirect to="/login" />;
     }

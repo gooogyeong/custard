@@ -17,7 +17,7 @@ const storage: firebase.storage.Storage = app.storage();
 export const provider: firebase.auth.GoogleAuthProvider = new firebase.auth.GoogleAuthProvider();
 //const functions = firebase.functions();
 
-const custardPath = "custard-937a9";
+//const custardPath = "custard-937a9";
 
 export const UserRef = database.ref(`User`);
 

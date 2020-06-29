@@ -2,16 +2,18 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { HashRouter, BrowserRouter } from "react-router-dom";
 import { createStore, applyMiddleware } from "redux";
-import { Provider } from "react-redux";
+//import { Provider } from "react-redux";
+import { Provider } from "mobx-react";
+import { RootStore } from "./stores";
 import thunk from "redux-thunk";
 
 import App from "./App";
 import rootReducer from "./reducers/rootReducer";
 
-const store = createStore(rootReducer, applyMiddleware(thunk));
+//const store = createStore(rootReducer, applyMiddleware(thunk));
 
 ReactDOM.render(
-  <Provider store={store}>
+  <Provider rootStore={new RootStore()}>
     <HashRouter>
       <App />
     </HashRouter>

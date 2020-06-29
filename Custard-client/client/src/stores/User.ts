@@ -2,7 +2,13 @@ import { observable, action } from "mobx";
 import firebase from "firebase/app";
 import { UserRef, getUserRef } from "../firebase";
 
-export class User {
+export class UserStore {
+  constructor(rootStore) {
+    this.rootStore = rootStore;
+  }
+
+  rootStore;
+
   @observable uuid: string = null;
   @observable userKey: string = null;
   @observable userName: string = "stranger";

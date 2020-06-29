@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import firebase from "firebase/app";
+
 import { Link, Switch, Redirect } from "react-router-dom";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { connect } from "react-redux";
