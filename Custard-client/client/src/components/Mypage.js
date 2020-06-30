@@ -1,11 +1,11 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import { inject, observer } from "mobx";
+import { inject, observer } from "mobx-react";
 import { Button } from "@material-ui/core";
 import "../styles/Mypage.css";
 
-@inject((rootStore) => ({
-  userStore: rootStore.userStore,
+@inject((stores) => ({
+  userStore: stores.rootStore.userStore,
 }))
 @observer
 class Mypage extends Component {
@@ -27,23 +27,25 @@ class Mypage extends Component {
   }
 
   handleFileSaveClick() {
-    this.props.updateFirebaseStorage(
-      this.props.mypage.userKey,
+    this.props.userStore.updateFirebaseStorage(
+      this.props.userStore.userKey,
       this.state.fileObj
     );
   }
 
   render() {
-    console.log(this.props.rootStore.userStore.uuid);
-    if (!this.props.mypage.isLogin) {
+    const { uuid, isLogin, userName, profileImgURL } = this.props.userStore;
+    console.log(this.props.userStore.userKey);
+    console.log(this.state.fileObj);
+    if (!isLogin) {
       return <Redirect to="/login" />;
     }
     return (
       <div className="mypage">
-        <div className="welcome">Hello, {this.props.mypage.username}!</div>
+        <div className="welcome">Hello, {userName}!</div>
         <div className="profile">
           <img
-            src={this.props.mypage.profileImgURL}
+            src={profileImgURL}
             alt="profile"
             style={{
               width: 180,
@@ -59,7 +61,7 @@ class Mypage extends Component {
               type="file"
               name="file"
               file={this.state.file}
-              onChange={this.handleFileChange.bind(this)}
+              onChange={this.handleFileChange}
             />
             <button
               className="upload-button"
@@ -70,10 +72,12 @@ class Mypage extends Component {
             </button>
           </div>
         </form>
-        <Button id="logout-button" onClick={this.props.handleSignOut}>
+        <Button id="logout-button" onClick={this.props.userStore.googleSignOut}>
           Sign out
         </Button>
       </div>
     );
   }
 }
+
+export default Mypage;

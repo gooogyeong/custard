@@ -19,7 +19,8 @@ export const provider: firebase.auth.GoogleAuthProvider = new firebase.auth.Goog
 
 //const custardPath = "custard-937a9";
 
-export const UserRef = database.ref(`User`);
+export const UserRef = database.ref("User");
+export const DeckRef = database.ref("Deck");
 
 //storage.ref() ?
 const rootRef = storage.ref();
@@ -27,6 +28,7 @@ export const profileRef = storage.ref("Profile");
 //export const profileImgRef = rootRef.child("Profile");
 
 export const getUserRef = (userPath: string) => UserRef.child(userPath);
+export const getDeckRef = (deckPath: string) => DeckRef.child(deckPath);
 
 export const onSignInClick = firebase
   .functions()

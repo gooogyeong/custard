@@ -1,16 +1,17 @@
 import React, { Component } from "react";
-
+import { inject, observer } from "mobx-react";
 import { Link, Switch, Redirect } from "react-router-dom";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import { connect } from "react-redux";
+//import { connect } from "react-redux";
 import "./App.css";
-import MypageRoot from "./components/MypageRoot";
-import LoginRoot from "./components/LoginRoot";
+import Mypage from "./components/Mypage";
+//import MypageRoot from "./components/MypageRoot";
+import Login from "./components/Login";
 import Study from "./containers/Study";
-import AllDeckList from "./containers/AllDeckList";
+import AllDeckList from "./components/AllDeckList";
 import Deck from "./containers/Deck";
 import AddCard from "./containers/AddCard";
-import Signup from "./containers/Signup";
+import Signup from "./components/Signup";
 import Score from "./containers/Score";
 
 import { initUser, checkAuthPersistence } from "./actions/mypageActions";
@@ -21,6 +22,10 @@ import custard_logo_3 from "./custard_logo_3.png";
 import custard_logo_no from "./custard_logo_no.png";
 import custard_logo_noo from "./custard_logo_noo.png";
 
+@inject((stores) => ({
+  userStore: stores.rootStore.userStore,
+}))
+@observer
 class App extends Component {
   state = { sideNav: false };
   //material-ui Drawer 사용해도 됨
@@ -36,13 +41,11 @@ class App extends Component {
   }
 
   componentDidMount() {
-    console.log("app component mounting");
-    this.props.checkAuthPersistence();
+    this.props.userStore.checkAuthPersistence();
   }
 
   render() {
-    const { isLogin } = this.props;
-    console.log(isLogin);
+    const { uuid, isLogin } = this.props.userStore;
     return (
       <div>
         <div id="login-logo-container">
@@ -77,23 +80,22 @@ class App extends Component {
                 exact
                 path="/"
                 render={() => {
-                  if (isLogin) {
+                  if (uuid) {
                     return <Redirect to="/mypage" />;
                   } else {
                     return <Redirect to="/login" />;
                   }
                 }}
               />
-              {/* <Route exact path="/" component={Landing} /> */}
               <Route
                 exact
                 path="/login"
-                component={LoginRoot}
+                component={Login}
                 render={() => {
-                  if (isLogin) {
+                  if (uuid) {
                     return <Redirect to="/mypage" />;
                   } else {
-                    return <LoginRoot />;
+                    return <Login />;
                   }
                 }}
               />
@@ -101,7 +103,7 @@ class App extends Component {
                 exact
                 path="/decks"
                 render={() => {
-                  if (isLogin) {
+                  if (uuid) {
                     return <AllDeckList />;
                   } else {
                     return <Redirect to="/login" />;
@@ -111,21 +113,22 @@ class App extends Component {
               <Route
                 exact
                 path="/signup"
-                render={() => {
-                  if (isLogin) {
-                    return <Redirect to="/mypage" />;
-                  } else {
-                    return <Signup />;
-                  }
-                }}
+                component={Signup}
+                // render={() => {
+                //   if (isLogin) {
+                //     return <Redirect to="/mypage" />;
+                //   } else {
+                //     return <Signup />;
+                //   }
+                // }}
               />
               <Route
                 exact
                 path="/mypage"
-                component={MypageRoot}
+                component={Mypage}
                 render={() => {
-                  if (isLogin) {
-                    return <MypageRoot />;
+                  if (uuid) {
+                    return <Mypage />;
                   } else {
                     return <Redirect to="/login" />;
                   }
@@ -138,7 +141,7 @@ class App extends Component {
                 path="/deck/:cate_route/:title" //<-"/deck:title" //TODO: match.params.title
                 component={Deck}
                 render={() => {
-                  if (isLogin) {
+                  if (uuid) {
                     return <Deck />;
                   } else {
                     return <Redirect to="/login" />;
@@ -150,7 +153,7 @@ class App extends Component {
                 path="/addCard/:cate_route/:title" //!어떤 deek에 카드를 추가하는지 알 수 있도록 router 추가했어요
                 component={AddCard}
                 render={() => {
-                  if (isLogin) {
+                  if (uuid) {
                     return <AddCard />;
                   } else {
                     return <Redirect to="/login" />;
@@ -162,7 +165,7 @@ class App extends Component {
                 path="/study/:cate_route/:title/:cardId" //TODO: url에 :cardId 이런식으로 들어가려면 각 카드에 id가 있어야하긴 하겠네요 ㅠ
                 component={Study}
                 render={() => {
-                  if (isLogin) {
+                  if (uuid) {
                     return <Study />;
                   } else {
                     return <Redirect to="/login" />;
@@ -174,7 +177,7 @@ class App extends Component {
                 path="/score/:cate_route/:title" //TODO: url에 :cardId 이런식으로 들어가려면 각 카드에 id가 있어야하긴 하겠네요 ㅠ
                 component={Score}
                 render={() => {
-                  if (isLogin) {
+                  if (uuid) {
                     return <Score />;
                   } else {
                     return <Redirect to="/login" />;
@@ -206,6 +209,6 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-App = connect(mapStateToProps, mapDispatchToProps)(App);
+//App = connect(mapStateToProps, mapDispatchToProps)(App);
 
 export default App;

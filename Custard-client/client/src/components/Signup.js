@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { inject, observer } from "mobx-react";
 import styled from "styled-components";
 import axios from "axios";
 import debounce from "lodash/debounce"; //* 이메일 인증 함수가 반복적으로 요청 되지 않기 하기 위한 라이브러리입니다.
@@ -32,7 +33,11 @@ const SignUpWrapper = styled.div`
   }
 `;
 
-export default class Signup extends Component {
+@inject((stores) => ({
+  userStore: stores.rootStore.userStore,
+}))
+@observer
+class Signup extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -97,44 +102,13 @@ export default class Signup extends Component {
   emailFeedback() {
     if (this.state.email) {
       return this.state.isEmail ? (
-        <div className="invalid-feedback">이미 등록되어 있는 이메일입니다</div>
+        <div className="invalid-feedback">이미 가입된 이메일입니다</div>
       ) : (
         <div className="valid-feedback">사용할 수 있는 이메일입니다</div>
       );
     }
   }
 
-  //* 패스워드 입력값 받아 state에 반영
-  passwordInput(passwordInput) {
-    this.setState({ password: passwordInput });
-  }
-
-  //* 패스워드 체크 값 입력 받아 반영
-  checkPasswordInput(checkPasswordInput) {
-    this.setState({ checkPassword: checkPasswordInput });
-  }
-
-  //? 패스워드 입력과 패스워드 체크 값이 일치하는 지 여부 확인
-  passwordMatch() {
-    const { password, checkPassword } = this.state;
-    return password === checkPassword;
-  }
-
-  //? 패스워드와 패스워드체크 가 일치하지 않으면 보여주는 메시지
-  passwordFeedback() {
-    const { checkPassword } = this.state;
-
-    if (checkPassword) {
-      if (!this.passwordMatch()) {
-        return (
-          <div className="invalid-feedback">패스워드가 일치하지 않습니다</div>
-        );
-      }
-    }
-  }
-
-  //* 회원가입시 보낼 데이터
-  // ? 이미지의 경우에는 서버에서 이미지 컬럼의 디폴트 값으로 이미지를 주었습니다.
   onClick(e) {
     e.preventDefault();
     const newUser = {
@@ -163,34 +137,24 @@ export default class Signup extends Component {
   }
 
   handleSignUpClick() {
-    //const newUserPath = UserRef.push().key;
-    //const uuid = this.props.uuid;
-    //const currUserRef = getUserRef(newUserPath);
-    this.props.createNewUser({
-      uuid: this.props.uuid,
+    console.log(this.props.userStore.uuid);
+    this.props.userStore.createNewUser({
+      uuid: this.props.userStore.uuid,
       email: this.state.email,
       username: this.state.username,
-      profile_img_url:
-        "https://firebasestorage.googleapis.com/v0/b/custard-937a9.appspot.com/o/Profile%2Fprofile_default.jpg?alt=media&token=bdfeaa86-f5ef-49d7-8ee6-b883e824110e",
     });
-    // .then(() => {
-    //   return <Redirect to="/login" />;
-    // });
-
-    //this.props.history.push("/login");
   }
 
   render() {
-    console.log(!this.props.uuid);
-    console.log(!this.props.isSignUp);
-    if (!this.props.uuid || !this.props.isSignUp) {
+    const { uuid, needSignUp } = this.props.userStore;
+    console.log(uuid);
+    console.log("printing uuid at singup");
+    console.log(uuid);
+    if (!needSignUp) {
       return <Redirect to="/login" />;
     }
-    // console.log(this.props.uuid);
-    // console.log(this.state);
-    // console.log(this.state.email);
-    // console.log(this.state.username);
-    const { register } = this.props;
+    console.log(needSignUp);
+    //const { register } = this.props;
     return (
       <SignUpWrapper>
         <div className="app">
@@ -238,3 +202,5 @@ export default class Signup extends Component {
     );
   }
 }
+
+export default Signup;
