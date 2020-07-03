@@ -41,6 +41,7 @@ class App extends Component {
   }
 
   componentDidMount() {
+    console.log("app checking auth persistence");
     this.props.userStore.checkAuthPersistence();
   }
 

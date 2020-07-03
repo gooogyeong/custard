@@ -29,7 +29,18 @@ class Login extends Component {
       .signInWithPopup(provider)
       .then(
         function (res) {
-          console.log(res.user.uid);
+          this.props.userStore.checkIfRegistered(res.user.uid);
+        }.bind(this)
+      )
+      .then(
+        function () {
+          if (this.props.userStore.needSignUp) {
+            console.log(this.props.userStore.needSignUp);
+            this.props.history.push("/signup");
+          } else {
+            this.props.userStore.storeSignIn();
+          }
+          /*console.log(res.user.uid);
           this.props.userStore.checkIfRegistered(res.user.uid).then(
             function (snap) {
               console.log(snap);
@@ -44,7 +55,7 @@ class Login extends Component {
                 this.props.userStore.setNeedSignUp();
               }
             }.bind(this)
-          );
+          );*/
         }.bind(this)
       );
   }
@@ -53,11 +64,12 @@ class Login extends Component {
     const { uuid, isLogin, needSignUp, googleSignIn } = this.props.userStore;
     console.log(isLogin);
     if (isLogin) {
-      return <Redirect to="/mypage" />; //!mypage
+      this.props.history.push("/mypage");
+      //return <Redirect to="/mypage" />; //!mypage
     }
-    if (needSignUp) {
-      this.props.history.push("/signup");
-    }
+    //if (needSignUp) {
+    //  this.props.history.push("/signup");
+    // }
     return (
       <div className="login" style={{ padding: "40px 0 0 0" }}>
         <Button id="google-login-button" onClick={this.googleSignIn}>

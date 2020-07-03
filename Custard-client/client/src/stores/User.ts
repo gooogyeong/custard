@@ -17,15 +17,17 @@ export class UserStore {
     this.rootStore = rootStore;
     this.checkIfRegistered = this.checkIfRegistered.bind(this);
     this.googleSignOut = this.googleSignOut.bind(this);
+    this.storeSignIn = this.storeSignIn.bind(this);
     this.storeSignOut = this.storeSignOut.bind(this);
+    this.endSignUp = this.endSignUp.bind(this);
   }
   rootStore;
 
   @observable errMsg: string = null;
   @observable uuid: string = null;
-  @observable isRegistered: boolean = false;
-  @observable isLogin: boolean = false;
-  @observable needSignUp: boolean = false;
+  @observable isRegistered: boolean = null;
+  @observable isLogin: boolean = null;
+  @observable needSignUp: boolean = null;
   @observable userKey: string = null;
   @observable userName: string = "stranger";
   @observable profileImgURL: string = null; //! stranger한테도 디폴트 url img url 줘야하지 않을까
@@ -38,31 +40,23 @@ export class UserStore {
   @action
   endSignUp() {
     this.needSignUp = false;
+    console.log("end sign up");
+  }
+
+  @action
+  toggleSignUp() {
+    this.needSignUp = !this.needSignUp;
   }
 
   @action
   storeSignIn() {
+    console.log("store sign in");
     this.isLogin = true;
   }
 
   @action
   storeSignOut() {
     this.isLogin = false;
-  }
-
-  @action
-  async checkIfRegistered(uuid) {
-    console.log("checking if registered");
-    console.log(uuid);
-    let userSnapshot = null;
-    await UserRef.orderByChild("uuid")
-      .equalTo(uuid)
-      .once("value", (snap) => {
-        if (snap.exists()) {
-          userSnapshot = snap;
-        }
-      });
-    return userSnapshot;
   }
 
   @action
@@ -130,10 +124,37 @@ export class UserStore {
   }
 
   @action
+  async checkIfRegistered(uuid) {
+    console.log("checking if registered");
+    let userSnapshot = null;
+    await UserRef.orderByChild("uuid")
+      .equalTo(uuid)
+      .on(
+        "value",
+        function (snap) {
+          if (snap.exists()) {
+            console.log("user exists in custard db!");
+            //this.needSignUp = false;
+            //this.toggleSignUp()
+            this.setUserInfo(snap);
+            this.endSignUp();
+            this.storeSignIn();
+            //userSnapshot = snap;
+          } else {
+            this.setNeedSignUp();
+            //this.needSignUp = true;
+          }
+        }.bind(this)
+      );
+    //console.log(userSnapshot);
+    //return userSnapshot;
+  }
+
+  @action
   checkAuthPersistence() {
     console.log("checking auth persistence...");
     firebase.auth().onAuthStateChanged(
-      async function (user) {
+      function (user) {
         if (user) {
           //만약 로그인된 유저가 있다면 그중에 current user가 있는지 확인한다
           const currUser = firebase.auth().currentUser;
@@ -143,10 +164,13 @@ export class UserStore {
             //console.log(currUserSnapshot);
             this.uuid = currUser.uid;
             this.checkIfRegistered(currUser.uid).then(
-              function (snap) {
-                if (snap) {
-                  this.setUserInfo(snap);
-                  this.isLogin = true;
+              function () {
+                if (this.needSignUp === false) {
+                  console.log("no need to sign up");
+                  console.log(this.needSignUp);
+                  //this.setUserInfo(snap);
+                  //this.isLogin = true;
+                  this.storeSignIn();
                 }
               }.bind(this)
             );
@@ -164,6 +188,7 @@ export class UserStore {
     const uploadFirebaseStorage = newProfileChild.put(fileObj);
     uploadFirebaseStorage.on("state_changed", function complete() {
       newProfileChild.getDownloadURL().then((url) => {
+        console.log(url);
         const currUserRef = getUserRef(userKey);
         currUserRef.update({ profile_img_url: url });
       });
