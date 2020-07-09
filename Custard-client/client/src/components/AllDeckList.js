@@ -11,7 +11,6 @@ import Tooltip from "@material-ui/core/Tooltip";
 import "../styles/AllDeckList.css";
 import OpenIconSpeedDial from "./OpenIconSpeedDial";
 import { Select } from "@material-ui/core";
-import { setCurrUUID } from "../actions/mypageActions";
 
 //TODO: edit 함수들 작성해야함
 
@@ -53,11 +52,18 @@ class AllDeckList extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      action: "",
       category: "",
       addingFirstDeckToCategory: false,
     };
+    this.addNewDeck = this.addNewDeck.bind(this);
     this.newCategory = React.createRef(); //? 쓸모...?
     this.addFirstDeckToCategory = this.addFirstDeckToCategory.bind(this);
+    this.handleAddClick = this.handleAddClick.bind(this);
+  }
+
+  addNewDeck() {
+    this.setState({ action: "add_new_deck" });
   }
 
   addFirstDeckToCategory() {
@@ -102,6 +108,11 @@ class AllDeckList extends Component {
     } else {
       return;
     }
+  }
+
+  handleAddClick() {
+    this.addNewDeck();
+    this.props.deckStore.createNewDeck();
   }
 
   componentDidMount() {
@@ -274,11 +285,11 @@ class AllDeckList extends Component {
               );
             })
           : null}
-        {this.props.action === "add_category" ? (
+        {this.state.action === "add_new_deck" ? (
           <ul className="caret-down">
             <input
               ref={this.newCategory}
-              defaultValue="add new category"
+              defaultValue="customize new deck"
               style={{ border: "3px black solid" }}
               type="text"
               onFocus={(e) => {
@@ -304,10 +315,15 @@ class AllDeckList extends Component {
             ></input>
           </ul>
         ) : null}
-        {/*<OpenIconSpeedDial
-          action={this.props.action}
-          actions={this.state.speedDialActions}
-        />*/}
+        <OpenIconSpeedDial
+          action={this.state.action}
+          actions={[
+            {
+              icon: <AddIcon onClick={this.handleAddClick} />,
+              name: "add new deck",
+            },
+          ]}
+        />
       </DeckListContainer>
     );
   }

@@ -81,7 +81,6 @@ export class UserStore {
     user["profile_img_url"] = defaultProfileImgURL;
     const newUserPath = UserRef.push().key;
     const currUserRef = getUserRef(newUserPath);
-    console.log(user);
     await currUserRef.set(user);
     await this.createFirstUserDeck();
     this.endSignUp();
@@ -140,15 +139,11 @@ export class UserStore {
             this.setUserInfo(snap);
             this.endSignUp();
             this.storeSignIn();
-            //userSnapshot = snap;
           } else {
             this.setNeedSignUp();
-            //this.needSignUp = true;
           }
         }.bind(this)
       );
-    //console.log(userSnapshot);
-    //return userSnapshot;
   }
 
   @action

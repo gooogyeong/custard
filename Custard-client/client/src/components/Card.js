@@ -44,7 +44,7 @@ class Card extends Component {
       DeckSpeedDialActions: [
         {
           icon: <AddCircleIcon />,
-          name: "Add Cards",
+          name: "add cards",
         },
       ],
       answerTargetCount: 1,
@@ -102,7 +102,7 @@ class Card extends Component {
       editHint,
     } = this.props.deckStore;
     const { currDeckCards } = this.props.cardStore;
-    return currDeck && currDeckCards ? (
+    return currDeck /*&& currDeckCards*/ ? (
       <div id="card">
         <Grid container spacing={3} className="card_container">
           {

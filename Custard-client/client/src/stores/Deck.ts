@@ -1,24 +1,34 @@
-import { observable, action } from "mobx";
+import { observable, action, autorun } from "mobx";
 import moment from "moment";
 import { DeckRef, CardRef, getDeckRef, getCardRef } from "../firebase";
 import { Deck, Card, CardForm, CardType } from "../types";
+import { client } from "../google_cloud";
 
 export class DeckStore {
   constructor(rootStore) {
     this.rootStore = rootStore;
+    autorun(() => {
+      this.uuid = this.rootStore.userStore.uuid;
+    });
     this.setCurrDeck = this.setCurrDeck.bind(this);
     this.deleteCard = this.deleteCard.bind(this);
     this.editCardType = this.editCardType.bind(this);
     this.editQuestion = this.editQuestion.bind(this);
     this.editAnswer = this.editAnswer.bind(this);
     this.editHint = this.editHint.bind(this);
+    this.handleCorrect = this.handleCorrect.bind(this);
+    this.handleWrong = this.handleWrong.bind(this);
   }
   rootStore;
 
+  uuid: string = null;
   @observable errMsg: string = null;
   @observable userDecks: Deck[] = null;
   @observable currDeck: Deck = null;
-  @observable currDeckCards: Card[] = null;
+  @observable currStudyCover: number = 0;
+  @observable currStudyCorrect: number = 0;
+  @observable currStudyWrong: number = 0;
+  //@observable currDeckCards: Card[] = null;
 
   @action
   getUserDecks(uuid: string) {
@@ -38,7 +48,6 @@ export class DeckStore {
 
   @action
   setUserDecks(snap) {
-    console.log(snap.val());
     const userDecksArr = [];
     Object.keys(snap.val()).forEach((key) => {
       const deckSnapshot = snap.val()[key];
@@ -57,6 +66,22 @@ export class DeckStore {
     this.userDecks = userDecksArr;
   }
 
+  createNewDeck() {
+    const newDeckPath = DeckRef.push().key;
+    const initialDeckRef = getDeckRef(newDeckPath);
+    initialDeckRef.set({
+      key: newDeckPath,
+      uuid: this.uuid,
+      author_id: this.uuid,
+      title: "customize new deck",
+      created_at: moment().format("YYYY.MM.DD HH:mm"),
+      last_updated_at: moment().format("YYYY.MM.DD HH:mm"),
+      cards: [],
+      subDecks: [],
+      superDecks: [],
+    });
+  }
+
   editDeckTitle(deckKey: string, newDeckTitle: string) {
     const deckPath = deckKey;
     getDeckRef(deckPath).update({
@@ -69,46 +94,6 @@ export class DeckStore {
     this.currDeck = this.userDecks
       ? this.userDecks.filter((deck) => deck.key === deckKey)[0]
       : null;
-  }
-
-  @action
-  getDeckCards(deckKey: string) {
-    getCardRef(deckKey).on(
-      "value",
-      function (snap) {
-        console.log("getting deck cards...");
-        if (snap.exists()) {
-          this.setDeckCards(snap);
-        } else {
-          this.errMsg = "no card in this deck";
-        }
-      }.bind(this)
-    );
-  }
-
-  @action
-  setDeckCards(snap) {
-    const deckCardsArr = [];
-    Object.keys(snap.val()).forEach((key) => {
-      const cardSnapshot = snap.val()[key];
-      const deckCard = <Card>{};
-      deckCard.key = key;
-      deckCard.deckKey = cardSnapshot["deck_key"];
-      deckCard.cardType = cardSnapshot["card_type"];
-      deckCard.question = cardSnapshot["question"];
-      deckCard.answer = cardSnapshot["answer"];
-      deckCard.answerTarget = cardSnapshot["answer_target"];
-      deckCard.hint = cardSnapshot["hint"];
-      deckCard.createdAt = cardSnapshot["created_at"];
-      deckCard.lastStudiedAt = cardSnapshot["last_studied_at"];
-      deckCard.coverCount = cardSnapshot["cover_count"];
-      deckCard.marked = cardSnapshot["marked"];
-      deckCard.correctCount = cardSnapshot["correct_count"];
-      deckCard.wrongCount = cardSnapshot["wrong_count"];
-      deckCard.lastStudiedAt = cardSnapshot["last_studied_at"];
-      deckCardsArr.push(deckCard);
-    });
-    this.currDeckCards = deckCardsArr;
   }
 
   createNewCards(deckKey: string, validAddCardForm: any[] /*CardForm[]*/) {
@@ -139,6 +124,10 @@ question: "사과"}*/
       newCardRef.set(newCard);
     });
     Promise.all(promises);
+  }
+
+  detectText() {
+    //client;
   }
 
   deleteCard(cardKey: string) {
@@ -172,5 +161,17 @@ question: "사과"}*/
     cardRef.update({
       answer: newHint,
     });
+  }
+
+  @action
+  handleCorrect() {
+    this.currStudyCover++;
+    this.currStudyCorrect++;
+  }
+
+  @action
+  handleWrong() {
+    this.currStudyCover++;
+    this.currStudyWrong++;
   }
 }

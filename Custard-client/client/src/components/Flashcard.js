@@ -16,24 +16,24 @@ class Flashcard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      showAnswer: false,
-      showHint: false,
-      correctClicked: false,
-      wrongClicked: false,
+      //showAnswer: false,
+      //showHint: false,
+      //correctClicked: false,
+      //wrongClicked: false,
       doubleSubmit: false,
     };
-    this.showHint = this.showHint.bind(this);
-    this.showAnswer = this.showAnswer.bind(this);
+    //this.showHint = this.showHint.bind(this);
+    //this.showAnswer = this.showAnswer.bind(this);
     this.doubleSubmitCheck = this.doubleSubmitCheck.bind(this);
   }
 
-  showHint() {
+  /*showHint() {
     this.setState({ showHint: true });
   }
 
   showAnswer() {
     this.setState({ showAnswer: true });
-  }
+  }*/
   //* correct, wrong click된 상태에 따라 wrong, correct disable
   handleCorrect() {
     this.setState({ correctClicked: true });
@@ -86,12 +86,11 @@ class Flashcard extends Component {
                         <FlareIcon
                           className="show_hint"
                           style={{ float: "right" }}
-                          onClick={() => {
-                            this.showHint();
+                          onClick={
+                            this.props.showHint
                             //this.props.handleHintedInServer(cardId);
                             //this.props.handleHintedPost(cardId);
-                            this.props.getDeckCards();
-                          }}
+                          }
                         >
                           show hint
                         </FlareIcon>
@@ -106,7 +105,7 @@ class Flashcard extends Component {
                         {currStudyCard.question}
                       </div>
                       <br></br>
-                      {this.state.showHint === true ? (
+                      {this.props.hint === true ? (
                         <div className="flashcard_H">
                           <div style={{ fontWeight: "bold" }}>
                             <br></br>Hint
@@ -115,7 +114,7 @@ class Flashcard extends Component {
                         </div>
                       ) : null}
                       <br></br>
-                      {this.state.showAnswer === true ? (
+                      {this.props.answer === true ? (
                         <div className="flashcard_A">
                           <div style={{ fontWeight: "bold" }}>
                             <br></br>Answer
@@ -126,7 +125,7 @@ class Flashcard extends Component {
                     </CardContent>
                     <br></br>
                   </CardContent>
-                  {this.state.showAnswer === true ? (
+                  {this.props.answer === true ? (
                     <div>
                       <CardActions>
                         {wrongClicked === false ? (
@@ -169,7 +168,7 @@ class Flashcard extends Component {
                     </div>
                   ) : (
                     <Button
-                      onClick={this.showAnswer}
+                      onClick={this.props.showAnswer}
                       variant="contained"
                       color="default"
                       fullWidth

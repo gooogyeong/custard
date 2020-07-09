@@ -1,4 +1,4 @@
-import { observable, action, autorun } from "mobx";
+import { observable, computed, action, autorun } from "mobx";
 import { Deck, Card, CardForm, CardType, AnswerType } from "../types";
 import { DeckRef, CardRef, getDeckRef, getCardRef } from "../firebase";
 
@@ -7,19 +7,31 @@ export class CardStore {
     this.rootStore = rootStore;
     autorun(() => {
       this.currDeck = this.rootStore.deckStore.currDeck;
+      this.currStudyCover = this.rootStore.deckStore.currStudyCover;
+      this.currStudyCorrect = this.rootStore.deckStore.currStudyCorrect;
+      this.currStudyWrong = this.rootStore.deckStore.currStudyWrong;
+    });
+    autorun(() => {
+      this.currDeckCardKeys = this.computeCurrDeckCardKeys;
     });
     this.setCurrStudyCard = this.setCurrStudyCard.bind(this);
     this.handleAnswerSubmit = this.handleAnswerSubmit.bind(this);
   }
   rootStore;
 
+  currDeckCardKeys: string[] = null;
   @observable currDeck: Deck = null;
   @observable errMsg: string = null;
   @observable currDeckCards: Card[] = null;
-  @observable currDeckCardKeys: string[] = this.currDeckCards
-    ? this.currDeckCards.map((card) => card.key)
-    : [];
   @observable currStudyCard: Card = null;
+  @observable currStudyCover: number = 0;
+  @observable currStudyCorrect: number = 0;
+  @observable currStudyWrong: number = 0;
+
+  @computed
+  get computeCurrDeckCardKeys() {
+    return this.currDeckCards ? this.currDeckCards.map((card) => card.key) : [];
+  }
 
   @action
   getDeckCards(deckKey: string) {
@@ -70,15 +82,19 @@ export class CardStore {
     }
   }
 
+  @action
   handleAnswerSubmit(cardKey: string, answerType: AnswerType) {
     const cardRef = getCardRef(this.currDeck.key).child(cardKey);
     cardRef.transaction(function (card) {
       if (card) {
         if (answerType === AnswerType.correct) {
+          this.currStudyCorrect++;
           card["correct_count"]++;
         } else if (answerType === AnswerType.wrong) {
+          this.currStudyWrong++;
           card["wrong_count"]++;
         }
+        this.currStudyCover++;
         card["cover_count"]++;
       }
       return card;

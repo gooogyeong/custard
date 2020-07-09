@@ -29,11 +29,17 @@ class Study extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      answer: false,
+      hint: false,
       answerSubmitted: false,
       correctClicked: false,
       wrongClicked: false,
       isMarked: false,
     };
+    this.showAnswer = this.showAnswer.bind(this);
+    this.showHint = this.showHint.bind(this);
+    this.hideAnswer = this.hideAnswer.bind(this);
+    this.hideHint = this.hideHint.bind(this);
     this.handleMarkedTrue = this.handleMarkedTrue.bind(this);
     this.handleMarkedFalse = this.handleMarkedFalse.bind(this);
     //this.setAnswerSubmitted = this.setAnswerSubmitted.bind(this);
@@ -41,6 +47,22 @@ class Study extends Component {
     this.handleOkayClick = this.handleOkayClick.bind(this);
     this.handleWrongClick = this.handleWrongClick.bind(this);
     this.handleNextClick = this.handleNextClick.bind(this);
+  }
+
+  showAnswer() {
+    this.setState({ answer: true });
+  }
+
+  showHint() {
+    this.setState({ hint: true });
+  }
+
+  hideAnswer() {
+    this.setState({ answer: false });
+  }
+
+  hideHint() {
+    this.setState({ hint: false });
   }
 
   componentDidMount() {
@@ -98,22 +120,29 @@ class Study extends Component {
   }
 
   handleNextClick() {
-    const {
-      currDeckCards,
-      currDeckCardKeys,
-      currStudyCard,
-    } = this.props.cardStore;
-    const currCardIdx =
-      currDeckCardKeys && currStudyCard
-        ? currDeckCardKeys.indexOf(currStudyCard.key)
-        : null;
-    this.props.cardStore.setCurrStudyCard(currDeckCards[currCardIdx + 1].key);
-    this.resetAnswerSubmitted();
-    this.props.history.push(
-      `/study/${this.props.deckStore.currDeck.key}/${
-        currDeckCards[currCardIdx + 1].key
-      }`
-    );
+    if (!this.state.answerSubmitted) {
+      alert("submit answer to move on");
+    } else {
+      const {
+        currDeckCards,
+        currDeckCardKeys,
+        currStudyCard,
+      } = this.props.cardStore;
+      this.hideHint();
+      this.hideAnswer();
+
+      const currCardIdx =
+        currDeckCardKeys && currStudyCard
+          ? currDeckCardKeys.indexOf(currStudyCard.key)
+          : null;
+      this.props.cardStore.setCurrStudyCard(currDeckCards[currCardIdx + 1].key);
+      this.resetAnswerSubmitted();
+      this.props.history.push(
+        `/study/${this.props.deckStore.currDeck.key}/${
+          currDeckCards[currCardIdx + 1].key
+        }`
+      );
+    }
   }
 
   render() {
@@ -122,18 +151,12 @@ class Study extends Component {
       currDeckCards,
       currDeckCardKeys,
       currStudyCard,
-      setCurrStudyCard,
       handleAnswerSubmit,
     } = this.props.cardStore;
-    const currCardIdx =
-      currDeckCardKeys && currStudyCard
-        ? currDeckCardKeys.indexOf(currStudyCard.key)
-        : null;
-    if (currStudyCard) {
-      console.log(currStudyCard.key);
-      console.log(currCardIdx);
-    }
-
+    console.log(currDeckCardKeys);
+    const currCardIdx = currStudyCard
+      ? currDeckCardKeys.indexOf(currStudyCard.key)
+      : null;
     return currStudyCard ? (
       <div id="study-container">
         <Grid container spacing={1} className="study_container">
@@ -172,6 +195,10 @@ class Study extends Component {
               <CardContent>
                 {currStudyCard.cardType === "flashcard" ? ( //{
                   <Flashcard
+                    answer={this.state.answer}
+                    hint={this.state.hint}
+                    showAnswer={this.showAnswer}
+                    showHint={this.showHint}
                     currStudyCard={currStudyCard}
                     correctClicked={this.state.correctClicked}
                     wrongClicked={this.state.wrongClicked}
@@ -182,7 +209,10 @@ class Study extends Component {
                   />
                 ) : (
                   <Blank
-                    //currDeckCards={currDeckCards}
+                    answer={this.state.answer}
+                    hitn={this.state.hint}
+                    showAnswer={this.showAnswer}
+                    showHint={this.showHint}
                     currStudyCard={currStudyCard}
                     correctClicked={this.state.correctClicked}
                     wrongClicked={this.state.wrongClicked}

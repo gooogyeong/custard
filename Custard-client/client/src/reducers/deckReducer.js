@@ -17,60 +17,10 @@ import {
   ADD_DECK,
   DELETE_CATEGORY,
   DELETE_DECK,
-  formatTimestamp
+  formatTimestamp,
 } from "../actions/allDeckListActions.js";
 import { CardActions } from "@material-ui/core";
 
-// const initialState = {
-//   decks: [
-//     {
-//       category: "English",
-//       decks: [
-//         {
-//           user_id: 1,
-//           id: 5,
-//           title: "Netflix - Rick and Morty",
-//           author: "Min",
-//           isEditing: false,
-//           created_at: "2020-03-05",
-//           last_updated_at: "2020-03-06",
-//           is_public: true,
-//           is_paid: false,
-//         },
-//         {
-//           user_id: 1,
-//           id: 7,
-//           title: "TOEIC",
-//           author: "Hackers",
-//           isEditing: false,
-//           created_at: "1990-10-19",
-//           last_updated_at: "2006-05-11",
-//           is_public: true,
-//           is_paid: true,
-//         },
-//       ],
-//       isEditing: false,
-//     },
-//     {
-//       category: "French",
-//       decks: [
-//         {
-//           user_id: 1,
-//           id: 3,
-//           title: "DELF",
-//           author: "AF",
-//           isEditing: false,
-//           created_at: "2008-10-10",
-//           last_updated_at: "2008-11-31",
-//           is_public: true,
-//           is_paid: true,
-//         },
-//       ],
-//       isEditing: false,
-//     },
-//   ],
-//   action: "", //TODO: 아마 지워야할듯 + action을 관리하는 함수들도
-// };
 const initialState = {
   category: [
     {
@@ -89,15 +39,15 @@ const initialState = {
           user_id: 1,
           category_id: 1,
           CategoryId: 1,
-          UserId: 1
-        }
+          UserId: 1,
+        },
       ],
       User: {
         id: 1,
         email: "kkscpower@naver.com",
         username: "park",
-        image: "/account.png"
-      }
+        image: "/account.png",
+      },
     },
     {
       id: 2,
@@ -115,17 +65,17 @@ const initialState = {
           user_id: 2,
           category_id: 7,
           CategoryId: 7,
-          UserId: 2
-        }
+          UserId: 2,
+        },
       ],
       User: {
         id: 2,
         email: "woodypark90@gmail.com",
         username: "박성용",
-        image: "/account.png"
-      }
-    }
-  ]
+        image: "/account.png",
+      },
+    },
+  ],
 };
 
 //* 액션을 만들어 발생시키면 리듀서가 현재 상태와 전달 받은 액션 객체를 파라미터로 받아온다.
@@ -187,7 +137,7 @@ const reducer = (state = initialState, action) => {
       //console.log(newCategory);
       return {
         ...state,
-        category: newCategory
+        category: newCategory,
       };
     // let newCategory = {
     //   cate: action.cate,
@@ -260,7 +210,7 @@ const reducer = (state = initialState, action) => {
         created_at: formatTimestamp(new Date()), //TODO: format 해줘야 되는건가?
         last_updated_at: formatTimestamp(new Date()), //TODO: 정렬하려면 안하는게 낫지 않은가 싶기도
         is_public: true,
-        is_paid: false
+        is_paid: false,
       };
       const addedDecks = [...state.category];
       for (let i = 0; i < addedDecks.length; i++) {
