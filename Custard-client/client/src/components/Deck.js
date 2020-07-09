@@ -1,14 +1,11 @@
 import React from "react";
 import Card from "./Card";
 
-function Deck({ match }) {
-  //console.log(match.params.category);
-  //console.log(match.params.title);
-  //console.log(props);
+function Deck({ match, history }) {
   return (
     <div>
       <div>{match.params.title}</div>
-      <Card />
+      <Card match={match} history={history} />
     </div>
   );
 }

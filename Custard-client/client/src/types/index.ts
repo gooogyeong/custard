@@ -22,10 +22,19 @@ export enum CardType {
   fill,
 }
 
+export interface CardForm {
+  deckKey: string;
+  cardType: CardType;
+  question: string;
+  answer: string;
+  answerTarget: string[];
+  hint: string;
+}
+
 export interface Card {
   key: string;
-  deckId: string;
-  cartType: CardType;
+  deckKey: string;
+  cardType: CardType;
   question: string; //text or image
   answer: string;
   answerTarget: string[];
@@ -33,8 +42,12 @@ export interface Card {
   createdAt: string;
   lastStudiedAt: string;
   coverCount: number;
-  marked: boolean;
   correctCount: number;
   wrongCount: number;
-  lastStudied: string;
+  marked: boolean;
+}
+
+export enum AnswerType {
+  correct,
+  wrong,
 }

@@ -1,4 +1,7 @@
 import React, { Component } from "react";
+import { toJS } from "mobx";
+import { inject, observer } from "mobx-react";
+import { AnswerType } from "../types";
 import { Link as RouterLink } from "react-router-dom";
 import Link from "@material-ui/core/Link";
 import Button from "@material-ui/core/Button";
@@ -6,8 +9,8 @@ import Tooltip from "@material-ui/core/Tooltip";
 import Bookmark from "@material-ui/icons/BookmarkBorder";
 import BookmarkIcon from "@material-ui/icons/Bookmark";
 
-import Flashcard from "../containers/Flashcard";
-import Blank from "../containers/Blank";
+import Flashcard from "./Flashcard";
+import Blank from "./Blank";
 // import Typography from "@material-ui/core/Typography";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
@@ -17,19 +20,37 @@ import Grid from "@material-ui/core/Grid";
 
 import "../styles/Study.css";
 
-export default class Study extends Component {
+@inject((stores) => ({
+  deckStore: stores.rootStore.deckStore,
+  cardStore: stores.rootStore.cardStore,
+}))
+@observer
+class Study extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      answerSubmitted: false,
+      correctClicked: false,
+      wrongClicked: false,
       isMarked: false,
     };
     this.handleMarkedTrue = this.handleMarkedTrue.bind(this);
     this.handleMarkedFalse = this.handleMarkedFalse.bind(this);
+    //this.setAnswerSubmitted = this.setAnswerSubmitted.bind(this);
+    this.resetAnswerSubmitted = this.resetAnswerSubmitted.bind(this);
+    this.handleOkayClick = this.handleOkayClick.bind(this);
+    this.handleWrongClick = this.handleWrongClick.bind(this);
+    this.handleNextClick = this.handleNextClick.bind(this);
   }
 
   componentDidMount() {
-    this.props.updateUserDecks(this.props.userId /**/);
-    this.props.getDeckCards();
+    if (!this.props.deckStore.currDeck) {
+      this.props.deckStore.setCurrDeck(this.props.match.params.deckKey);
+    }
+    if (!this.props.deckStore.currStudyCard) {
+      console.log(this.props.match.params.cardKey);
+      this.props.cardStore.setCurrStudyCard(this.props.match.params.cardKey);
+    }
   }
 
   handleMarkedTrue() {
@@ -40,39 +61,80 @@ export default class Study extends Component {
     this.setState({ isMarked: false });
   }
 
+  setAnswerSubmitted() {
+    this.setState({ answerSubmitted: true });
+  }
+
+  resetAnswerSubmitted() {
+    this.setState({
+      answerSubmitted: false,
+      correctClicked: false,
+      wrongClicked: false,
+    });
+  }
+
+  handleOkayClick() {
+    if (this.state.answerSubmitted) {
+      alert("already submitted");
+    } else {
+      this.setState({ answerSubmitted: true, correctClicked: true });
+      this.props.cardStore.handleAnswerSubmit(
+        this.props.cardStore.currStudyCard.key,
+        AnswerType.correct
+      );
+    }
+  }
+
+  handleWrongClick() {
+    if (this.state.answerSubmitted) {
+      alert("already submitted");
+    } else {
+      this.setState({ answerSubmitted: true, wrongClicked: true });
+      this.props.cardStore.handleAnswerSubmit(
+        this.props.cardStore.currStudyCard.key,
+        AnswerType.wrong
+      );
+    }
+  }
+
+  handleNextClick() {
+    const {
+      currDeckCards,
+      currDeckCardKeys,
+      currStudyCard,
+    } = this.props.cardStore;
+    const currCardIdx =
+      currDeckCardKeys && currStudyCard
+        ? currDeckCardKeys.indexOf(currStudyCard.key)
+        : null;
+    this.props.cardStore.setCurrStudyCard(currDeckCards[currCardIdx + 1].key);
+    this.resetAnswerSubmitted();
+    this.props.history.push(
+      `/study/${this.props.deckStore.currDeck.key}/${
+        currDeckCards[currCardIdx + 1].key
+      }`
+    );
+  }
+
   render() {
-    const { cards, decks, category } = this.props;
-    const { cate_route, title, cardId } = this.props.match.params;
-    const { handleHintedPost } = this.props;
-    //console.log(handleHintedPost);
-
-    //? decks => category[i].Decks
-    let currentDeckId = 0;
-    let currentDeck = "";
-    let deckTitle = "";
-    for (let i = 0; i < category.length; i++) {
-      for (let j = 0; j < category[i].Decks.length; j++) {
-        if (category[i].Decks[j].title === title) {
-          currentDeckId = category[i].Decks[j].id;
-          currentDeck = category[i].Decks[j].title;
-          deckTitle = category[i].Decks[j].title;
-        }
-      }
+    const { currDeck } = this.props.deckStore;
+    const {
+      currDeckCards,
+      currDeckCardKeys,
+      currStudyCard,
+      setCurrStudyCard,
+      handleAnswerSubmit,
+    } = this.props.cardStore;
+    const currCardIdx =
+      currDeckCardKeys && currStudyCard
+        ? currDeckCardKeys.indexOf(currStudyCard.key)
+        : null;
+    if (currStudyCard) {
+      console.log(currStudyCard.key);
+      console.log(currCardIdx);
     }
-    const cardIdArr = [];
-    //console.log(cards);
-    //console.log(currentDeckId);
 
-    for (let i = 0; i < cards.length; i++) {
-      console.log(typeof cards[i]["deck_id"]);
-      if (cards[i]["deck_id"] === currentDeckId) {
-        cardIdArr.push(cards[i].id);
-      }
-    }
-    //console.log(deckTitle);
-    //console.log(cardIdArr);
-    const currentIdx = cardIdArr.indexOf(parseInt(cardId));
-    return (
+    return currStudyCard ? (
       <div id="study-container">
         <Grid container spacing={1} className="study_container">
           <Grid
@@ -87,14 +149,12 @@ export default class Study extends Component {
               <Tooltip title="bookmark" placement="right">
                 <CardHeader
                   title="Study"
-                  subheader={deckTitle}
+                  subheader={currDeck.title}
                   action={
                     !this.state.isMarked ? (
                       <Bookmark
                         style={{ float: "right" }}
                         onClick={() => {
-                          this.props.handleMarkedInServer(cardId);
-                          this.props.getDeckCards();
                           this.setState({ isMarked: true });
                         }}
                       />
@@ -102,9 +162,6 @@ export default class Study extends Component {
                       <BookmarkIcon
                         style={{ float: "right" }}
                         onClick={() => {
-                          //TODO: 서버에 다시 요청보내는 함수 필요
-                          // this.props.handleMarkedInServer(cardId);
-                          // this.props.getDeckCards();
                           this.setState({ isMarked: false });
                         }}
                       />
@@ -113,59 +170,33 @@ export default class Study extends Component {
                 />
               </Tooltip>
               <CardContent>
-                {cards.map(
-                  function (card) {
-                    if (
-                      card["deck_id"] === currentDeckId &&
-                      card.id === parseInt(cardId)
-                    ) {
-                      if (card.cardtype === "flashcard") {
-                        return (
-                          <Flashcard
-                            cardId={card.id}
-                            handleCorrectAnswer={this.props.handleCorrectAnswer}
-                            handleCorrectInServer={
-                              this.props.handleCorrectInServer
-                            }
-                            handleCorrectScore={this.props.handleCorrectScore}
-                            handleWrongAnswer={this.props.handleWrongAnswer}
-                            handleWrongInServer={this.props.handleWrongInServer}
-                            handleWrongScore={this.props.handleWrongScore}
-                            handleHintedInServer={
-                              this.props.handleHintedInServer
-                            }
-                            handleHintedPost={this.props.handleHintedPost}
-                            // hintedInStore={this.props.hintedInStore}
-                          />
-                        );
-                      } else if (card.cardtype === "fill-in-the-blank") {
-                        return (
-                          <Blank
-                            cardId={card.id}
-                            handleCorrectAnswer={this.props.handleCorrectAnswer}
-                            handleCorrectInServer={
-                              this.props.handleCorrectInServer
-                            }
-                            handleCorrectScore={this.props.handleCorrectScore}
-                            handleWrongAnswer={this.props.handleWrongAnswer}
-                            handleWrongInServer={this.props.handleWrongInServer}
-                            handleWrongScore={this.props.handleWrongScore}
-                            handleHintedInServer={
-                              this.props.handleHintedInServer
-                            }
-                            handleHintedPost={this.props.handleHintedPost}
-                          />
-                        );
-                      }
-                    }
-                  }.bind(this)
+                {currStudyCard.cardType === "flashcard" ? ( //{
+                  <Flashcard
+                    currStudyCard={currStudyCard}
+                    correctClicked={this.state.correctClicked}
+                    wrongClicked={this.state.wrongClicked}
+                    handleAnswerSubmit={handleAnswerSubmit}
+                    AnswerType={AnswerType}
+                    handleOkayClick={this.handleOkayClick}
+                    handleWrongClick={this.handleWrongClick}
+                  />
+                ) : (
+                  <Blank
+                    //currDeckCards={currDeckCards}
+                    currStudyCard={currStudyCard}
+                    correctClicked={this.state.correctClicked}
+                    wrongClicked={this.state.wrongClicked}
+                    handleAnswerSubmit={handleAnswerSubmit}
+                    handleOkayClick={this.handleOkayClick}
+                    handleWrongClick={this.handleWrongClick}
+                  />
                 )}
               </CardContent>
               <CardActions>
-                {currentIdx === 0 ? (
+                {currCardIdx === 0 ? (
                   <Link
                     component={RouterLink}
-                    to={`/deck/${cate_route}/${title}`}
+                    to={`/deck/${currStudyCard.key}`}
                   >
                     <Button className="study_button" variant="outlined">
                       Back to Deck
@@ -174,24 +205,21 @@ export default class Study extends Component {
                 ) : (
                   <Link
                     component={RouterLink}
-                    to={`/study/${cate_route}/${title}/${
-                      cardIdArr[currentIdx - 1]
-                    }`}
+                    to={`/study/${currStudyCard.key}`}
                   >
                     <Button className="study_button" variant="outlined">
                       previous card
                     </Button>
                   </Link>
                 )}
-                {currentIdx === cardIdArr.length - 1 ? (
-                  // <Link component={RouterLink} to={`/score/${category}/${title}`}>
+                {currCardIdx === currDeckCards.length - 1 ? (
                   <Link
                     component={RouterLink}
                     to={{
-                      pathname: `/score/${cate_route}/${title}`,
+                      pathname: `/score/${currDeck.key}`,
                       state: {
-                        cards: cards,
-                        currentDeckId: currentDeckId,
+                        currDeckCards: currDeckCards,
+                        currDeckKey: currDeck.Key,
                       },
                     }}
                   >
@@ -200,22 +228,21 @@ export default class Study extends Component {
                     </Button>
                   </Link>
                 ) : (
-                  <Link
-                    component={RouterLink}
-                    to={`/study/${cate_route}/${title}/${
-                      cardIdArr[currentIdx + 1]
-                    }`}
+                  <Button
+                    className="study_button"
+                    variant="outlined"
+                    onClick={this.handleNextClick}
                   >
-                    <Button className="study_button" variant="outlined">
-                      next card
-                    </Button>
-                  </Link>
+                    next card
+                  </Button>
                 )}
               </CardActions>
             </Card>
           </Grid>
         </Grid>
       </div>
-    );
+    ) : null;
   }
 }
+
+export default Study;

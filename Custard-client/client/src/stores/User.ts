@@ -20,6 +20,7 @@ export class UserStore {
     this.storeSignIn = this.storeSignIn.bind(this);
     this.storeSignOut = this.storeSignOut.bind(this);
     this.endSignUp = this.endSignUp.bind(this);
+    this.observeUserInfo = this.observeUserInfo.bind(this);
   }
   rootStore;
 
@@ -65,6 +66,7 @@ export class UserStore {
       "value",
       function (snap) {
         if (snap.exists()) {
+          console.log("start observing user info");
           this.setUserInfo(snap);
         }
       }.bind(this)
@@ -109,16 +111,17 @@ export class UserStore {
     this.uuid = user.uuid;
     this.userKey = userKey;
     this.userName = user.username;
-    this.profileImgURL = user.profile_img_url;
+    console.log(user["profile_img_url"]);
+    this.profileImgURL = user["profile_img_url"];
   }
 
   getUserInfo(uuid) {
     console.log("getting user info");
     UserRef.orderByChild("uuid")
       .equalTo(uuid)
-      .on("value", (snap) => {
+      .on("value", async function (snap) {
         if (snap.exists()) {
-          this.setUserInfo(snap);
+          await this.setUserInfo(snap);
         }
       });
   }
@@ -134,8 +137,6 @@ export class UserStore {
         function (snap) {
           if (snap.exists()) {
             console.log("user exists in custard db!");
-            //this.needSignUp = false;
-            //this.toggleSignUp()
             this.setUserInfo(snap);
             this.endSignUp();
             this.storeSignIn();
@@ -171,6 +172,7 @@ export class UserStore {
                   //this.setUserInfo(snap);
                   //this.isLogin = true;
                   this.storeSignIn();
+                  this.observeUserInfo(currUser.uid);
                 }
               }.bind(this)
             );

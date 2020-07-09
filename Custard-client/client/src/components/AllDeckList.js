@@ -1,15 +1,48 @@
 import React, { Component } from "react";
-import { toJS } from "mobx";
+import styled from "styled-components";
+import { toJS, set } from "mobx";
 import { inject, observer } from "mobx-react";
 import { Link, Redirect } from "react-router-dom";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
 import EditIcon from "@material-ui/icons/Edit";
+import ImportContactsIcon from "@material-ui/icons/ImportContacts";
 import Tooltip from "@material-ui/core/Tooltip";
 import "../styles/AllDeckList.css";
 import OpenIconSpeedDial from "./OpenIconSpeedDial";
+import { Select } from "@material-ui/core";
+import { setCurrUUID } from "../actions/mypageActions";
 
 //TODO: edit 함수들 작성해야함
+
+const DeckListContainer = styled.div`
+  width: 600px;
+  min-height: 300px;
+  margin: 0 0 0 250px;
+  background-color: #ece3a9;
+  padding-top: 20px;
+  border-radius: 5px;
+`;
+
+const Deck = styled.li`
+  display: flex;
+  justify-content: space-between;
+`;
+
+const DeckTitle = styled.input`
+  font-size: 18px;
+  font-weight: 400;
+  color: rgb(49, 49, 49);
+  //margin: 0 210px 0 0;
+  border-radius: 2px;
+  background-color: rgb(243, 241, 241);
+  min-width: 300px;
+  padding: 0 0 0 2px;
+`;
+
+const DeckTools = styled.div`
+  //border: 1px solid black;
+`;
 
 @inject((stores) => ({
   userStore: stores.rootStore.userStore,
@@ -20,15 +53,6 @@ class AllDeckList extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      speedDialActions: [
-        {
-          icon: <AddIcon onClick={this.props.activateInput} />,
-          name: "add category",
-        },
-      ],
-      //* decks: this.props.decks,
-      //? decks => category
-      // category: "this.props.category",
       category: "",
       addingFirstDeckToCategory: false,
     };
@@ -86,85 +110,78 @@ class AllDeckList extends Component {
 
   render() {
     const { uuid } = this.props.userStore;
-    const { userDecks } = this.props.deckStore;
-    console.log(toJS(userDecks));
+    const { userDecks, editDeckTitle, setCurrDeck } = this.props.deckStore;
+    console.log(userDecks);
     return (
-      <div className="deck-list">
+      <DeckListContainer>
         {userDecks
           ? userDecks.map((cate, i) => {
+              console.log(cate);
               return (
                 <ul
-                  id={cate.category}
+                  key={cate.key}
                   className="caret"
                   onClick={(e) => {
                     this.handleDeckCategoryToggle(e);
                   }}
                 >
-                  <input
-                    className="category"
-                    type="text"
-                    disabled={false}
-                    value={cate.title}
-                    onChange={(e) => {
-                      this.setState({ category: e.target.value });
-                      cate.category = e.target.value;
-                      this.props.editCateTitle(cate.id);
-                    }}
-                    onBlur={(e) => {
-                      //마우스가 input 필드가 아닌 다른 곳을 클릭할 때 수정이 끝난 것으로 간주
-                      this.setState({ category: e.target.value });
-                      this.props.editCateInServer(cate.id, e.target.value);
-                      this.props.editCateTitle(cate.id);
-                      this.props.updateUserDecks();
-                      //? this.props.disactivateDeckInput(i, j);
-                    }}
-                    onKeyUp={function (e) {
-                      //엔터 쳤을때도 마찬가지로 수정 종료된 것으로 간주
-                      if (e.keyCode === 13) {
-                        this.props.editCateInServer(cate.id, e.target.value);
-                        this.props.editCateTitle(cate.id);
-                        this.props.updateUserDecks();
-                        //? this.props.disactivateDeckInput(i, j);
-                      }
-                    }.bind(this)}
-                  ></input>
-                  <span className="category-tool">
-                    <Tooltip title="add deck" placement="left">
-                      <AddIcon
-                        //TODO: 도움말 추가
-                        onClick={this.handleAddDeckButtonClick.bind(this)}
-                      />
-                    </Tooltip>
-                    {/* <EditIcon
-                  //? 꼭 필요한지 잘 모르겠음...
-                  onClick={() => {
-                    this.props.editCateInServer(cate.id, cate.category);
-                    this.props.editCateTitle(cate.id);
-                  }}
-                /> */}
-                    <Tooltip title="delete category" placement="right">
-                      <DeleteIcon
-                        onClick={function () {
-                          this.props.deleteCategory(cate.id);
-                          //TODO: 카테고리가 지워질 경우, 덱도 전부 지워집니다. Y/N 경고 창이 필요
-                          alert("delete all?");
-                          this.props.updateUserDecks();
-                        }.bind(this)}
-                      />
-                    </Tooltip>
-                  </span>
+                  <Deck>
+                    <DeckTitle
+                      className="category"
+                      type="text"
+                      disabled={false}
+                      value={cate.title}
+                      onChange={(e) => {
+                        userDecks[i].title = e.target.value;
+                      }}
+                      onBlur={(e) => {
+                        editDeckTitle(cate.key, e.target.value);
+                      }}
+                      onKeyUp={(e) => {
+                        if (e.keyCode === 13) {
+                          editDeckTitle(cate.key, e.target.value);
+                        }
+                      }}
+                    ></DeckTitle>
+                    <DeckTools>
+                      <Tooltip title="show cards" placement="top">
+                        <ImportContactsIcon
+                          onClick={function () {
+                            setCurrDeck(cate.key);
+                            this.props.history.push(`/deck/${cate.key}`);
+                          }.bind(this)}
+                        />
+                      </Tooltip>
+                      <Tooltip title="add sub-deck" placement="top">
+                        <AddIcon
+                          onClick={this.handleAddDeckButtonClick.bind(this)}
+                        />
+                      </Tooltip>
+                      <Tooltip title="delete category" placement="top">
+                        <DeleteIcon
+                          onClick={function () {
+                            this.props.deleteCategory(cate.id);
+                            //TODO: 카테고리가 지워질 경우, 덱도 전부 지워집니다. Y/N 경고 창이 필요
+                            alert("delete all?");
+                            this.props.updateUserDecks();
+                          }.bind(this)}
+                        />
+                      </Tooltip>
+                    </DeckTools>
+                  </Deck>
                   <li>
                     <ul className="nested">
-                      {cate.Decks
-                        ? cate.Decks.map((singleDeck, j) => {
-                            return singleDeck["user_id"] === uuid ? (
+                      {cate.subDecks
+                        ? cate.subDecks.map((singleDeck, j) => {
+                            return (
                               <li id={`${cate.category} ${singleDeck.title}`}>
                                 <div>
                                   <Link
                                     to={
                                       cate.Decks[j].isEditing
                                         ? "/decks"
-                                        : `/deck/${cate.category}/${singleDeck.title}`
+                                        : //: `/deck/${cate.title}`
+                                          `/deck/${cate.category}/${singleDeck.title}`
                                     }
                                   >
                                     <input
@@ -175,7 +192,6 @@ class AllDeckList extends Component {
                                       }
                                       value={singleDeck.title}
                                       onBlur={(e) => {
-                                        //마우스가 input 필드가 아닌 다른 곳을 클릭할 때 수정이 끝난 것으로 간주
                                         console.log("no longer editing");
                                         this.props.editDeckInServer(
                                           singleDeck.id,
@@ -184,7 +200,6 @@ class AllDeckList extends Component {
                                         this.props.disactivateDeckInput(i, j);
                                       }}
                                       onKeyUp={function (e) {
-                                        //엔터 쳤을때도 마찬가지로 수정 종료된 것으로 간주
                                         if (e.keyCode === 13) {
                                           this.props.editDeckInServer(
                                             singleDeck.id,
@@ -227,7 +242,7 @@ class AllDeckList extends Component {
                                   </span>
                                 </div>
                               </li>
-                            ) : null;
+                            );
                           })
                         : null}
                       <input
@@ -289,11 +304,11 @@ class AllDeckList extends Component {
             ></input>
           </ul>
         ) : null}
-        <OpenIconSpeedDial
+        {/*<OpenIconSpeedDial
           action={this.props.action}
           actions={this.state.speedDialActions}
-        />
-      </div>
+        />*/}
+      </DeckListContainer>
     );
   }
 }

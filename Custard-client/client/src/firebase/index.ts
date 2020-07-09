@@ -21,6 +21,7 @@ export const provider: firebase.auth.GoogleAuthProvider = new firebase.auth.Goog
 
 export const UserRef = database.ref("User");
 export const DeckRef = database.ref("Deck");
+export const CardRef = database.ref("Card");
 
 //storage.ref() ?
 const rootRef = storage.ref();
@@ -29,19 +30,8 @@ export const profileRef = storage.ref("Profile");
 
 export const getUserRef = (userPath: string) => UserRef.child(userPath);
 export const getDeckRef = (deckPath: string) => DeckRef.child(deckPath);
+export const getCardRef = (cardPath: string) => CardRef.child(cardPath);
 
 export const onSignInClick = firebase
   .functions()
   .httpsCallable("onSignInClick");
-
-// Your web app's Firebase configuration
-//   var firebaseConfig = {
-//     apiKey: "AIzaSyBXeZNycAS8aBbjhBW78X6631GiS9AXt1s",
-//     authDomain: "custard-937a9.firebaseapp.com",
-//     databaseURL: "https://custard-937a9.firebaseio.com",
-//     projectId: "custard-937a9",
-//     storageBucket: "custard-937a9.appspot.com",
-//     messagingSenderId: "393719772719",
-//     appId: "1:393719772719:web:43048ed2f0233bd6dbf8da"
-//   };
-// Initialize Firebase

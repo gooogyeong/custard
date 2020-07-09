@@ -17,11 +17,6 @@ class Login extends Component {
     this.googleSignIn = this.googleSignIn.bind(this);
   }
 
-  // componentDidMount() {
-  //   console.log("login component did mount");
-  //   this.props.userStore.checkAuthPersistence();
-  // }
-
   async googleSignIn() {
     await firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     firebase
@@ -38,24 +33,11 @@ class Login extends Component {
             console.log(this.props.userStore.needSignUp);
             this.props.history.push("/signup");
           } else {
+            console.log("existing user. start observing...");
+            console.log(`observe ${this.props.userStore.uuid}`);
             this.props.userStore.storeSignIn();
+            this.props.userStore.observeUserInfo(this.props.userStore.uuid);
           }
-          /*console.log(res.user.uid);
-          this.props.userStore.checkIfRegistered(res.user.uid).then(
-            function (snap) {
-              console.log(snap);
-              if (snap) {
-                console.log("found user snap!");
-                this.props.userStore.setUserInfo(snap);
-                this.props.userStore.storeSignIn();
-                this.props.userStore.observeUserInfo(res.user.uid);
-                //this.props.history.push("/mypage");
-              } else {
-                console.log("no user snap");
-                this.props.userStore.setNeedSignUp();
-              }
-            }.bind(this)
-          );*/
         }.bind(this)
       );
   }

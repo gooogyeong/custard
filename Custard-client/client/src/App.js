@@ -5,16 +5,15 @@ import { BrowserRouter as Router, Route } from "react-router-dom";
 //import { connect } from "react-redux";
 import "./App.css";
 import Mypage from "./components/Mypage";
-//import MypageRoot from "./components/MypageRoot";
 import Login from "./components/Login";
-import Study from "./containers/Study";
+import Study from "./components/Study";
 import AllDeckList from "./components/AllDeckList";
-import Deck from "./containers/Deck";
-import AddCard from "./containers/AddCard";
+import Deck from "./components/Deck";
+import AddCard from "./components/AddCard";
 import Signup from "./components/Signup";
-import Score from "./containers/Score";
+import Score from "./components/Score";
 
-import { initUser, checkAuthPersistence } from "./actions/mypageActions";
+//import { initUser, checkAuthPersistence } from "./actions/mypageActions";
 
 import custard_logo_1 from "./custard_logo_1.png";
 import custard_logo_2 from "./custard_logo_2.png";
@@ -93,7 +92,7 @@ class App extends Component {
                 path="/login"
                 component={Login}
                 render={() => {
-                  if (uuid) {
+                  if (isLogin) {
                     return <Redirect to="/mypage" />;
                   } else {
                     return <Login />;
@@ -103,70 +102,47 @@ class App extends Component {
               <Route
                 exact
                 path="/decks"
+                component={AllDeckList}
                 render={() => {
-                  if (uuid) {
+                  if (isLogin) {
                     return <AllDeckList />;
                   } else {
                     return <Redirect to="/login" />;
                   }
                 }}
               />
-              <Route
-                exact
-                path="/signup"
-                component={Signup}
-                // render={() => {
-                //   if (isLogin) {
-                //     return <Redirect to="/mypage" />;
-                //   } else {
-                //     return <Signup />;
-                //   }
-                // }}
-              />
+              <Route exact path="/signup" component={Signup} />
               <Route
                 exact
                 path="/mypage"
                 component={Mypage}
                 render={() => {
-                  if (uuid) {
+                  if (isLogin) {
                     return <Mypage />;
                   } else {
                     return <Redirect to="/login" />;
                   }
                 }}
               />
-              {/* //? category => cate_route */}
+              <Route exact path="/deck/:deckKey" component={Deck} />
               <Route
                 exact
-                // path="/deck"
-                path="/deck/:cate_route/:title" //<-"/deck:title" //TODO: match.params.title
-                component={Deck}
-                render={() => {
-                  if (uuid) {
-                    return <Deck />;
-                  } else {
-                    return <Redirect to="/login" />;
-                  }
-                }}
-              />
-              <Route
-                exact
-                path="/addCard/:cate_route/:title" //!어떤 deek에 카드를 추가하는지 알 수 있도록 router 추가했어요
+                path="/add/:deckKey"
                 component={AddCard}
-                render={() => {
-                  if (uuid) {
-                    return <AddCard />;
-                  } else {
-                    return <Redirect to="/login" />;
-                  }
-                }}
+                //render={() => {
+                //  if (isLogin) {
+                //    return <AddCard />;
+                //  } else {
+                //    return <Redirect to="/login" />;
+                //  }
+                //}}
               />
               <Route
                 exact
-                path="/study/:cate_route/:title/:cardId" //TODO: url에 :cardId 이런식으로 들어가려면 각 카드에 id가 있어야하긴 하겠네요 ㅠ
+                path="/study/:deckKey/:cardKey" //TODO: url에 :cardId 이런식으로 들어가려면 각 카드에 id가 있어야하긴 하겠네요 ㅠ
                 component={Study}
                 render={() => {
-                  if (uuid) {
+                  if (isLogin) {
                     return <Study />;
                   } else {
                     return <Redirect to="/login" />;
@@ -175,10 +151,10 @@ class App extends Component {
               />
               <Route
                 exact
-                path="/score/:cate_route/:title" //TODO: url에 :cardId 이런식으로 들어가려면 각 카드에 id가 있어야하긴 하겠네요 ㅠ
+                path="/score/:deckKey" //TODO: url에 :cardId 이런식으로 들어가려면 각 카드에 id가 있어야하긴 하겠네요 ㅠ
                 component={Score}
                 render={() => {
-                  if (uuid) {
+                  if (isLogin) {
                     return <Score />;
                   } else {
                     return <Redirect to="/login" />;
@@ -192,24 +168,5 @@ class App extends Component {
     );
   }
 }
-
-const mapStateToProps = (state) => {
-  return {
-    isLogin: state.mypage.isLogin,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    checkAuthPersistence: () => {
-      dispatch(checkAuthPersistence);
-    },
-    initUser: () => {
-      dispatch(initUser());
-    },
-  };
-};
-
-//App = connect(mapStateToProps, mapDispatchToProps)(App);
 
 export default App;
