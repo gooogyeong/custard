@@ -1,8 +1,34 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
 import { inject, observer } from "mobx-react";
+import styled from "styled-components";
 import { Button } from "@material-ui/core";
 import "../styles/Mypage.css";
+
+const MypageContainer = styled.div`
+  padding: 10px 0 0 0;
+  .welcome {
+    min-width: 120px;
+    display: flex;
+    wrap: nowrap;
+    font-size: 23px;
+    margin: 20px 0 10px 276px;
+    color: grey;
+  }
+`;
+
+const ProfilePic = styled.img`
+  width: 180px;
+  height: 180px;
+  border-radius: 100%;
+`;
+
+const UploadContainer = styled.div`
+  display: flex;
+  wrap: nowrap;
+  margin: 0 0 0 105px;
+  padding: 3px;
+`;
 
 @inject((stores) => ({
   userStore: stores.rootStore.userStore,
@@ -34,28 +60,18 @@ class Mypage extends Component {
   }
 
   render() {
-    const { uuid, isLogin, userName, profileImgURL } = this.props.userStore;
-    console.log(this.props.userStore.userKey);
-    console.log(this.state.fileObj);
+    const { isLogin, userName, profileImgURL } = this.props.userStore;
     if (!isLogin) {
       return <Redirect to="/login" />;
     }
     return (
-      <div className="mypage">
+      <MypageContainer>
         <div className="welcome">Hello, {userName}!</div>
         <div className="profile">
-          <img
-            src={profileImgURL}
-            alt="profile"
-            style={{
-              width: 180,
-              height: 180,
-              borderRadius: "100%",
-            }}
-          />
+          <ProfilePic src={profileImgURL} alt="profile" />
         </div>
         <form onSubmit={this.handleFormSubmit}>
-          <div id="profile-uploader-container">
+          <UploadContainer>
             <input
               className="custom-file-input"
               type="file"
@@ -70,12 +86,12 @@ class Mypage extends Component {
             >
               저장
             </button>
-          </div>
+          </UploadContainer>
         </form>
         <Button id="logout-button" onClick={this.props.userStore.googleSignOut}>
           Sign out
         </Button>
-      </div>
+      </MypageContainer>
     );
   }
 }

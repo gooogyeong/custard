@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { toJS } from "mobx";
 import styled from "styled-components";
 import { styled as materialStyled } from "@material-ui/core/styles";
 import { inject, observer } from "mobx-react";
@@ -7,7 +6,6 @@ import AddIcon from "@material-ui/icons/Add";
 import PlayArrow from "@material-ui/icons/PlayArrow";
 import "../styles/AllDeckList.css";
 import OpenIconSpeedDial from "./OpenIconSpeedDial";
-import { grey } from "@material-ui/core/colors";
 import DeckEntry from "./DeckEntry";
 
 const DeckListContainer = styled.div`
@@ -15,8 +13,16 @@ const DeckListContainer = styled.div`
   min-height: 300px;
   margin: 0 0 0 250px;
   background-color: #ece3a9;
-  padding-top: 20px;
+  padding: 40px 20px 20px 30px;
   border-radius: 5px;
+`;
+
+const NewDeck = styled.input`
+  color: #bdbdbd;
+  border: 3px solid black;
+  margin: 2px 0 2px 23px;
+  font-size: 16px;
+  width: 394px;
 `;
 
 export const TreeToggleIcon = materialStyled(PlayArrow)({
@@ -65,7 +71,7 @@ class AllDeckList extends Component {
     return (
       <DeckListContainer>
         {userDecks
-          ? userDecks.map((deck, i) => {
+          ? userDecks.map((deck) => {
               return deck.superDecks.length === 0 ? (
                 <DeckEntry
                   history={this.props.history}
@@ -80,36 +86,33 @@ class AllDeckList extends Component {
             })
           : null}
         {this.state.action === "add_new_deck" ? (
-          <ul>
-            {/*<TreeToggleIcon />*/}
-            <input
-              ref={this.newCategory}
-              defaultValue="customize new deck"
-              style={{ border: "3px black solid" }}
-              type="text"
-              onFocus={(e) => {
+          <NewDeck
+            ref={this.newCategory}
+            defaultValue="customize new deck"
+            //style={{ border: "3px black solid" }}
+            type="text"
+            onFocus={(e) => {
+              e.target.value = "";
+            }}
+            onBlur={(e) => {
+              if (e.target.value.length) {
+                createDeck(e.target.value);
                 e.target.value = "";
-              }}
-              onBlur={(e) => {
+              } else {
+                alert("deck title should not be blank");
+              }
+            }}
+            onKeyUp={(e) => {
+              if (e.keyCode === 13) {
                 if (e.target.value.length) {
                   createDeck(e.target.value);
                   e.target.value = "";
                 } else {
                   alert("deck title should not be blank");
                 }
-              }}
-              onKeyUp={(e) => {
-                if (e.keyCode === 13) {
-                  if (e.target.value.length) {
-                    createDeck(e.target.value);
-                    e.target.value = "";
-                  } else {
-                    alert("deck title should not be blank");
-                  }
-                }
-              }}
-            ></input>
-          </ul>
+              }
+            }}
+          ></NewDeck>
         ) : null}
         <OpenIconSpeedDial
           action={this.state.action}

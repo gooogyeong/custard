@@ -8,7 +8,7 @@ import { rootStore } from "./stores";
 import thunk from "redux-thunk";
 
 import App from "./App";
-import rootReducer from "./reducers/rootReducer";
+//import rootReducer from "./reducers/rootReducer";
 
 //const store = createStore(rootReducer, applyMiddleware(thunk));
 

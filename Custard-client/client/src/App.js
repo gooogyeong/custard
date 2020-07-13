@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { inject, observer } from "mobx-react";
 import { Link, Switch, Redirect } from "react-router-dom";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-//import { connect } from "react-redux";
+import styled from "styled-components";
 import "./App.css";
 import Mypage from "./components/Mypage";
 import Login from "./components/Login";
@@ -40,7 +40,7 @@ class App extends Component {
   }
 
   componentDidMount() {
-    console.log("app checking auth persistence");
+    //console.log("app checking auth persistence");
     this.props.userStore.checkAuthPersistence();
   }
 
@@ -125,18 +125,7 @@ class App extends Component {
                 }}
               />
               <Route exact path="/deck/:deckKey" component={Deck} />
-              <Route
-                exact
-                path="/add/:deckKey"
-                component={AddCard}
-                //render={() => {
-                //  if (isLogin) {
-                //    return <AddCard />;
-                //  } else {
-                //    return <Redirect to="/login" />;
-                //  }
-                //}}
-              />
+              <Route exact path="/add/:deckKey" component={AddCard} />
               <Route
                 exact
                 path="/study/:deckKey/:cardKey" //TODO: url에 :cardId 이런식으로 들어가려면 각 카드에 id가 있어야하긴 하겠네요 ㅠ

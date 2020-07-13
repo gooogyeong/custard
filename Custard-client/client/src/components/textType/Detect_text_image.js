@@ -38,6 +38,7 @@ class Detect_text_image extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      worker: null,
       fileObj: [],
       fileArray: [],
       cardBin: [],
@@ -74,11 +75,9 @@ class Detect_text_image extends Component {
   }
 
   handleCheck(i, e) {
-    //console.log(i);
     const newCardBin = [...this.state.cardBin];
     if (e.target.checked) {
       newCardBin.push(i);
-      //newCardBin.sort();
     } else {
       for (let j = 0; j < newCardBin.length; i++) {
         if (newCardBin[j] === i) {
@@ -119,14 +118,8 @@ class Detect_text_image extends Component {
   }
 
   displayFile(file, i) {
-    console.log(file);
-    console.log(i);
     const imageEditorInst = this.imageEditor.current.getInstance();
-    imageEditorInst.loadImageFromFile(file).then((result) => {
-      console.log("display success");
-      // console.log("old : " + result.oldWidth + ", " + result.oldHeight);
-      // console.log("new : " + result.newWidth + ", " + result.newHeight);
-    });
+    imageEditorInst.loadImageFromFile(file);
   }
 
   selectLang(langArr) {
@@ -177,37 +170,22 @@ class Detect_text_image extends Component {
       reader.onerror = (error) => reject(error);
     });
 
-  //여기까지
   //TODO: create separate card / create one card 나눠야함
   doOCR = async () => {
-    this.setState({ ocr: "Recognizing..." });
-    let targetLang = "";
-    if (this.state.language.length === 1) {
-      targetLang = this.state.language[0];
-    } else if (this.state.language.length > 1) {
-      targetLang = this.state.language.join("+");
-    }
-    let newOCR = "";
+    this.setState({ ocr: "Retrieving OCR result..." });
     const promises = this.state.fileObj.map(
       async function (fileObj, i) {
         if (this.state.cardBin.includes(i)) {
           const dataURL = await this.toBase64(fileObj);
-          const worker = createWorker({
-            logger: (m) => console.log(m),
-          });
-          await worker.load(); // loads tesseract.js-core scripts
-          await worker.loadLanguage(targetLang);
-          await worker.initialize(targetLang); // initializes the Tesseract API
           const {
             data: { text },
-          } = await worker.recognize(dataURL);
+          } = await this.state.worker.recognize(dataURL);
           return text;
         }
       }.bind(this)
     );
     return Promise.all(promises)
       .then((res) => {
-        //console.log(res); //배열
         this.setState({ OCRResult: res });
       })
       .catch((error) => {
@@ -224,39 +202,36 @@ class Detect_text_image extends Component {
     this.setState({ OCRResult: e.target.value });
   }
 
+  async componentDidMount() {
+    let targetLang = "";
+    if (this.state.language.length === 1) {
+      targetLang = this.state.language[0];
+    } else if (this.state.language.length > 1) {
+      targetLang = this.state.language.join("+");
+    }
+    const worker = createWorker({
+      logger: (m) => console.log(m),
+    });
+    await worker.load(); // loads tesseract.js-core scripts
+    await worker.loadLanguage(targetLang);
+    await worker.initialize(targetLang); // initializes the Tesseract API
+    this.setState({ worker: worker });
+  }
+
   render() {
     //     const instruction = `1. copy & paste table
     //     2. respectively name columns question, answer, target`;
     //     const template = `| question | answer | note |
     // | -------- | ------ | ---- |
     // |  |  |  |`;
-    //console.log(this.state.cardBin);
-    //console.log(this.state.fileObj);
-    // console.log(this.state.fileObj);
-    // console.log(this.state.fileArray);
     //["blob:http://localhost:3000/a8984720-e245-4473-97ad-a729f87302a6", {...s}]
     const { detectText } = this.props.cardStore;
     return (
       <div>
         <div>
           <div id="image-editor">
-            {/*<div className="center">*/}
-            {/*<DeleteIcon onClick={this.discardFile} />*/}
-            {/*<MultipleImageUpload
-            fileArray={this.state.fileArray}
-            uploadMultipleFiles={this.uploadMultipleFiles}
-            handleCheck={this.handleCheck}
-            selectFile={this.selectFile}
-            displayFile={this.displayFile}
-          />*/}
-            {/*<button className="upload-button button" onClick={this.saveChange}>
-            save change
-        </button>*/}
-
             <ImageEditor
-              //id="image-editor"
               ref={this.imageEditor}
-              // {...imageEditorOptions}
               includeUI={{
                 loadImage: {
                   path:
@@ -318,13 +293,10 @@ class Detect_text_image extends Component {
               detect selected item(s)
             </button>
           </div>
-          <div id="select-language" style={{ display: "none" }}>
-            <SelectLanguage selectLang={this.selectLang} />
-          </div>
           <textarea
             id="OCR-result"
             onChange={this.editOCRResult}
-            value={this.state.OCRResult}
+            value={this.state.OCRResult || this.state.ocr}
             style={{
               //width: "100%",
               height: 250,
@@ -332,9 +304,13 @@ class Detect_text_image extends Component {
           ></textarea>
           {/*</div>*/}
         </div>
-        {/*<div id="select-language">
-          <SelectLanguage selectLang={this.selectLang} />
-        </div>*/}
+        {/*<div id="select-language" style={{ border: "1px solid black" }}>
+          <SelectLanguage
+            language={this.state.language}
+            selectLang={this.selectLang}
+            style={{ border: "1px solid black" }}
+          />
+          </div>*/}
       </div>
     );
   }

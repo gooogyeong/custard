@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-import { toJS } from "mobx";
-import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { styled as materialStyled } from "@material-ui/core/styles";
 import { TreeToggleIcon } from "./AllDeckList";
@@ -10,10 +8,12 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import ImportContactsIcon from "@material-ui/icons/ImportContacts";
 import Tooltip from "@material-ui/core/Tooltip";
 
-const Deck = styled.li`
+const Deck = styled.div`
+  //border: 1px solid red;
   display: flex;
   justify-content: space-between;
-  padding: 0 15px 0 0;
+  //padding: 0 15px 0 0;
+  margin: 8px 0 8px 0;
   .deck_entry {
     display: flex;
     flex-direction: row;
@@ -21,21 +21,33 @@ const Deck = styled.li`
 `;
 
 const DeckTitleContainer = styled.div`
+  //border: 1px solid blue;
+  width: 100%;
   background-color: rgb(243, 241, 241);
   margin: 0 0 6px 2px;
 `;
 
+//! sub_deck?
 const DeckTitle = styled.input`
+  //border: 1px solid black;
   display: inline;
   font-size: 18px;
   font-weight: 400;
   color: rgb(49, 49, 49);
   border-radius: 2px;
   background-color: inherit;
-  min-width: 300px;
+  //width: 100%;
+  width: 400px;
   padding: 0 0 0 2px;
   &:hover {
     cursor: pointer;
+  }
+  input.sub_deck {
+    cursor: pointer;
+    font-size: 11pt;
+    font-weight: 300;
+    border-radius: 2px;
+    background-color: rgb(253, 253, 241);
   }
 `;
 
@@ -44,7 +56,19 @@ const LightEditIcon = materialStyled(EditIcon)({
   color: "#bdbdbd",
 });
 
-const DeckTools = styled.div``;
+const DeckTools = styled.div`
+  //border: 2px solid blue;
+  width: 80px;
+  cursor: pointer;
+`;
+
+const NewSubDeck = styled.input`
+  border: grey solid 3px;
+  font-size: 14px;
+  color: #bdbdbd;
+  margin: 2px 0 2px 47px;
+  width: 370px;
+`;
 
 class DeckEntry extends Component {
   constructor(props) {
@@ -90,8 +114,16 @@ class DeckEntry extends Component {
       addSubDeck,
     } = this.props;
     return deck ? (
-      <ul key={deck.key}>
-        <Deck>
+      <div key={deck.key}>
+        <Deck
+          style={
+            deck.superDecks.length
+              ? {
+                  margin: "4px 0 4px 20px",
+                }
+              : {}
+          }
+        >
           <div className="deck_entry">
             {deck.subDecks.length !== 0 ? (
               <TreeToggleIcon
@@ -102,10 +134,37 @@ class DeckEntry extends Component {
                 }
                 onClick={this.toggleSubDeck}
               />
-            ) : null}
-            <DeckTitleContainer>
+            ) : (
+              <TreeToggleIcon style={{ opacity: 0 }} />
+            )}
+            <DeckTitleContainer
+              style={
+                deck.superDecks.length
+                  ? {
+                      width: "380px",
+                    }
+                  : {}
+              }
+            >
               <DeckTitle
                 className="category"
+                style={
+                  deck.superDecks.length !== 0
+                    ? {
+                        cursor: "pointer",
+                        //fontSize: "11pt",
+                        color: "#616161",
+                        fontWeight: 300,
+                        height: "24px",
+                        borderRadius: "2px",
+                        backgroundColor: "rgb(253, 253, 241)",
+                        //paddingRight: "50px",
+                        //marginRight: "50px",
+                        //width: "300px",
+                        width: "100%",
+                      }
+                    : {}
+                }
                 type="text"
                 disabled={false}
                 value={this.state.deckTitle}
@@ -149,118 +208,55 @@ class DeckEntry extends Component {
             </Tooltip>
           </DeckTools>
         </Deck>
-        <li>
-          <ul
-            className={
-              this.state.addNewSubDeck || this.state.showSubDeck
-                ? "active"
-                : "nested"
-            }
-          >
-            {deck.subDecks &&
-            (this.state.showSubDeck || this.state.addNewSubDeck)
-              ? deck.subDecks.map((subDeckKey, j) => {
-                  const subDeck = userDecks.filter((deck, i) => {
-                    return deck.key === subDeckKey;
-                  })[0];
-                  return (
-                    <DeckEntry
-                      className="sub_deck"
-                      history={this.props.history}
-                      userDecks={userDecks}
-                      deck={subDeck}
-                      setCurrDeck={setCurrDeck}
-                      editDeckTitle={editDeckTitle}
-                      deleteDeck={deleteDeck}
-                      addSubDeck={addSubDeck}
-                    />
-                    /*<li key={subDeckKey}>
-                      <div>
-                        <Link
-                        //to={
-                        //  cate.Decks[j].isEditing
-                        //    ? "/decks"
-                        //    : `/deck/${cate.category}/${singleDeck.title}`
-                        //}
-                        >
-                          <input
-                            type="text"
-                            className="deck-title"
-                            disabled={
-                              false
-                              //cate.Decks[j].isEditing ? false : true
-                            }
-                            value={subDeck.title}
-                            onBlur={(e) => {
-                              console.log("no longer editing");
-                              //this.props.editDeckInServer(
-                              //  singleDeck.id,
-                              //  e.target.value
-                              //);
-                              //this.props.disactivateDeckInput(i, j);
-                            }}
-                            onKeyUp={function (e) {
-                              if (e.keyCode === 13) {
-                                //this.props.editDeckInServer(
-                                //singleDeck.id,
-                                //e.target.value
-                                //);
-                                //this.props.disactivateDeckInput(i, j);
-                              }
-                            }.bind(this)}
-                            onChange={(e) => {
-                              this.props.editDeckTitle(i, j, e.target.value);
-                            }}
-                          ></input>
-                        </Link>
-                        <span className="deck-tool">
-                          <Tooltip title="edit deck" placement="left">
-                            <EditIcon
-                              onClick={() => {
-                                this.props.activateDeckInput(i, j);
-                              }}
-                            />
-                          </Tooltip>
-                          <Tooltip title="delete deck" placement="right">
-                            <DeleteIcon
-                              onClick={() => {
-                                this.props
-                                  .deleteDeck
-                                  //cate.category,
-                                  //singleDeck.id
-                                  ();
-                                this.props.updateUserDecks();
-                              }}
-                            />
-                          </Tooltip>
-                        </span>
-                      </div>
-                            </li>*/
-                  );
-                })
-              : null}
-            <input
-              style={this.state.addNewSubDeck ? {} : { display: "none" }}
-              className="newDeckInput"
-              type="text"
-              onBlur={(e) => {
+        {/*<li>*/}
+        <div
+          className={
+            this.state.addNewSubDeck || this.state.showSubDeck
+              ? "active"
+              : "nested"
+          }
+        >
+          {deck.subDecks && (this.state.showSubDeck || this.state.addNewSubDeck)
+            ? deck.subDecks.map((subDeckKey, j) => {
+                const subDeck = userDecks.filter((deck, i) => {
+                  return deck.key === subDeckKey;
+                })[0];
+                return (
+                  <DeckEntry
+                    history={this.props.history}
+                    userDecks={userDecks}
+                    deck={subDeck}
+                    setCurrDeck={setCurrDeck}
+                    editDeckTitle={editDeckTitle}
+                    deleteDeck={deleteDeck}
+                    addSubDeck={addSubDeck}
+                  />
+                );
+              })
+            : null}
+          <NewSubDeck
+            style={this.state.addNewSubDeck ? {} : { display: "none" }}
+            className="newDeckInput"
+            defaultValue="customize new deck"
+            type="text"
+            onBlur={(e) => {
+              if (e.target.value.length) {
+                addSubDeck(deck.key, e.target.value);
+              }
+              e.target.value = "";
+            }}
+            onKeyUp={(e) => {
+              if (e.keyCode === 13) {
                 if (e.target.value.length) {
                   addSubDeck(deck.key, e.target.value);
                 }
                 e.target.value = "";
-              }}
-              onKeyUp={(e) => {
-                if (e.keyCode === 13) {
-                  if (e.target.value.length) {
-                    addSubDeck(deck.key, e.target.value);
-                  }
-                  e.target.value = "";
-                }
-              }}
-            />
-          </ul>
-        </li>
-      </ul>
+              }
+            }}
+          />
+        </div>
+        {/*</li>*/}
+      </div>
     ) : null;
   }
 }

@@ -21,38 +21,12 @@ ul {
   background-color: rgb(253, 253, 241);
 }
 
-.caret {
-  cursor: pointer;
-  -webkit-user-select: none; /* Safari 3.1+ */
-  -moz-user-select: none; /* Firefox 2+ */
-  -ms-user-select: none; /* IE 10+ */
-  user-select: none;
-  margin-bottom: 20px;
-}
-
-.caret::before {
-  content: "\25B6";
-  color: rgb(49, 49, 49);
-  display: inline-block;
-  margin-right: 6px;
-}
-
-.caret-down {
-  cursor: pointer;
-  margin-bottom: 20px;
-}
-
-.caret-down::before {
-  content: "▼";
-  margin-right: 6px;
-}
-
 .nested {
-  margin-top: 5px;
+  /*margin-top: 5px;*/
   display: none;
 }
 
 .active {
-  margin-top: 5px;
+  /* margin-top: 5px;*/
   display: block;
 }

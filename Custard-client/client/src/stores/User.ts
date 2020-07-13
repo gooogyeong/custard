@@ -10,7 +10,7 @@ import {
   getDeckRef,
 } from "../firebase";
 import { User } from "../types";
-import { getUserInfo } from "../actions/mypageActions";
+//import { getUserInfo } from "../actions/mypageActions";
 
 export class UserStore {
   constructor(rootStore) {
@@ -110,7 +110,7 @@ export class UserStore {
     this.uuid = user.uuid;
     this.userKey = userKey;
     this.userName = user.username;
-    console.log(user["profile_img_url"]);
+    //console.log(user["profile_img_url"]);
     this.profileImgURL = user["profile_img_url"];
   }
 
@@ -184,10 +184,10 @@ export class UserStore {
     const newProfileChild = profileRef.child(`profile_${userKey}`);
     const uploadFirebaseStorage = newProfileChild.put(fileObj);
     uploadFirebaseStorage.on("state_changed", function complete() {
-      newProfileChild.getDownloadURL().then((url) => {
+      newProfileChild.getDownloadURL().then(async (url) => {
         console.log(url);
         const currUserRef = getUserRef(userKey);
-        currUserRef.update({ profile_img_url: url });
+        await currUserRef.update({ profile_img_url: url });
       });
     });
   }

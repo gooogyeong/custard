@@ -19,7 +19,7 @@ import CardType from "./selectMenu/CardType";
 
 import "../styles/Card.css";
 import { brown } from "@material-ui/core/colors";
-import { editQuestion } from "../actions/cardActions";
+//import { editQuestion } from "../actions/cardActions";
 
 const styles = {
   root: {

@@ -4,7 +4,7 @@ import styled from "styled-components";
 import axios from "axios";
 import debounce from "lodash/debounce"; //* 이메일 인증 함수가 반복적으로 요청 되지 않기 하기 위한 라이브러리입니다.
 import { Route, Link, Redirect } from "react-router-dom";
-import LoginRoot from "./LoginRoot";
+//import LoginRoot from "./LoginRoot";
 import { register } from "./UserFunctions";
 import { Button } from "@material-ui/core";
 import { UserRef, getUserRef, createNewUser } from "../firebase";

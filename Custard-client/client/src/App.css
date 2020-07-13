@@ -148,9 +148,11 @@ input {
   background-color: white;
 }
 
+/*
 .newDeckInput {
   border: grey solid 1px;
 }
+*/
 
 .custom-file-input::-webkit-file-upload-button {
   display: none;
