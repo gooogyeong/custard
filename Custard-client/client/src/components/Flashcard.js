@@ -82,19 +82,17 @@ class Flashcard extends Component {
                 <div>
                   <CardContent style={{ backgroundColor: "#faf9f2" }}>
                     <div>
-                      <Tooltip title="hint" placement="right">
-                        <FlareIcon
-                          className="show_hint"
-                          style={{ float: "right" }}
-                          onClick={
-                            this.props.showHint
-                            //this.props.handleHintedInServer(cardId);
-                            //this.props.handleHintedPost(cardId);
-                          }
-                        >
-                          show hint
-                        </FlareIcon>
-                      </Tooltip>
+                      {currStudyCard.hint ? (
+                        <Tooltip title="hint" placement="right">
+                          <FlareIcon
+                            className="show_hint"
+                            style={{ float: "right" }}
+                            onClick={this.props.showHint}
+                          >
+                            show hint
+                          </FlareIcon>
+                        </Tooltip>
+                      ) : null}
                     </div>
                     <br></br>
                     <CardContent>

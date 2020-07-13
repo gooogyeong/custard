@@ -101,8 +101,8 @@ class Card extends Component {
       editAnswer,
       editHint,
     } = this.props.deckStore;
-    const { currDeckCards } = this.props.cardStore;
-    return currDeck /*&& currDeckCards*/ ? (
+    const { currDeckCards, resetStudy } = this.props.cardStore;
+    return currDeck ? (
       <div id="card">
         <Grid container spacing={3} className="card_container">
           {
@@ -115,6 +115,7 @@ class Card extends Component {
                   id="card_study_button"
                   onClick={function () {
                     if (currDeckCards) {
+                      resetStudy();
                       this.props.cardStore.setCurrStudyCard(
                         currDeckCards[0].key
                       );

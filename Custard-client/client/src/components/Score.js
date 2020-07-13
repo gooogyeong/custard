@@ -40,50 +40,11 @@ class Score extends Component {
 
   render() {
     const { deckKey } = this.props.match.params;
-    //const { currDeck } = this.props.deckStore;
     const {
-      currDeckCards,
-      currDeckCardKeys,
-      currStudyCard,
-      handleAnswerSubmit,
       currStudyCover,
       currStudyCorrect,
       currStudyWrong,
     } = this.props.cardStore;
-    // const { /*currentDeckId, cards, cardIdArr*/ currDeckCards} = this.props.location.state;
-    //let correctArr = [];
-    /*let wrongArr = [];
-    let hintedArr = [];
-    let markedQArr = [];
-    let correct;
-    let wrong;
-    let hinted;
-    let idArray = [];
-    let total = 0;
-    let deckTitle;*/
-    /*currDeckCards.map((card) => {
-      correct = correctArr.push(card.correct);
-      wrong = wrongArr.push(card.wrong);
-      hinted = hintedArr.push(card.hinted);
-
-      correct = correctArr.reduce((acc, curr) => {
-        return acc + curr;
-      });
-      wrong = wrongArr.reduce((acc, curr) => {
-        return acc + curr;
-      });
-      hinted = hintedArr.reduce((acc, curr) => {
-        return acc + curr;
-      });
-      idArray.push(card.id);
-      total = idArray.length;
-      if (card.marked === true) {
-        markedQArr.push(card.question);
-      }
-      console.log(markedQArr);
-      console.log();
-    });
-    console.log(correct, wrong, hinted);*/
     return (
       <div id="score">
         <div>
@@ -110,24 +71,8 @@ class Score extends Component {
                     primary={`Wrong: ${currStudyWrong} / ${currStudyCover}`}
                   />
                 </ListItem>
-                {/*<Divider />
-                <ListItem>
-                  <ListItemIcon>
-                    <FlareIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={`Hinted: ${hinted} / ${total}`} />
-                </ListItem>*/}
               </List>
             </Grid>
-            {/*<Grid xs={12} sm={12} md={12} className="score_marked">
-              {markedQArr.map((markedQ, i) => (
-                <div>
-                  <h4>Marked{i + 1}</h4>
-                  {markedQ}
-                </div>
-              ))}
-              <Divider />
-              </Grid>*/}
           </Grid>
           <br></br>
           <br></br>

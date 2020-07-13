@@ -121,19 +121,16 @@ export default class Blank extends Component {
             <Card variant="outlined">
               <CardHeader subheader="Blank" className="blank_header" />
               <CardContent style={{ backgroundColor: "#faf9f2" }}>
-                <Tooltip title="hint" placement="right">
-                  <FlareIcon
-                    style={{ float: "right" }}
-                    onClick={() => {
-                      this.showHint();
-                      //this.props.handleHintedInServer(cardId);
-                      //this.props.handleHintedPost(cardId);
-                      //this.props.getDeckCards();
-                    }}
-                  >
-                    show hint
-                  </FlareIcon>
-                </Tooltip>
+                {currStudyCard.hint ? (
+                  <Tooltip title="hint" placement="right">
+                    <FlareIcon
+                      style={{ float: "right" }}
+                      onClick={this.showHint}
+                    >
+                      show hint
+                    </FlareIcon>
+                  </Tooltip>
+                ) : null}
                 <br></br>
                 {
                   <div

@@ -11,13 +11,13 @@ export class DeckStore {
       this.uuid = this.rootStore.userStore.uuid;
     });
     this.setCurrDeck = this.setCurrDeck.bind(this);
+    this.createDeck = this.createDeck.bind(this);
+    this.addSubDeck = this.addSubDeck.bind(this);
     this.deleteCard = this.deleteCard.bind(this);
     this.editCardType = this.editCardType.bind(this);
     this.editQuestion = this.editQuestion.bind(this);
     this.editAnswer = this.editAnswer.bind(this);
     this.editHint = this.editHint.bind(this);
-    this.handleCorrect = this.handleCorrect.bind(this);
-    this.handleWrong = this.handleWrong.bind(this);
   }
   rootStore;
 
@@ -25,10 +25,6 @@ export class DeckStore {
   @observable errMsg: string = null;
   @observable userDecks: Deck[] = null;
   @observable currDeck: Deck = null;
-  @observable currStudyCover: number = 0;
-  @observable currStudyCorrect: number = 0;
-  @observable currStudyWrong: number = 0;
-  //@observable currDeckCards: Card[] = null;
 
   @action
   getUserDecks(uuid: string) {
@@ -66,19 +62,66 @@ export class DeckStore {
     this.userDecks = userDecksArr;
   }
 
-  createNewDeck() {
+  createDeck(newDeckTitle: string) {
     const newDeckPath = DeckRef.push().key;
     const initialDeckRef = getDeckRef(newDeckPath);
     initialDeckRef.set({
       key: newDeckPath,
       uuid: this.uuid,
       author_id: this.uuid,
-      title: "customize new deck",
+      title: newDeckTitle,
       created_at: moment().format("YYYY.MM.DD HH:mm"),
       last_updated_at: moment().format("YYYY.MM.DD HH:mm"),
       cards: [],
-      subDecks: [],
-      superDecks: [],
+      sub_decks: [],
+      super_decks: [],
+    });
+  }
+
+  async deleteDeck(deck: Deck) {
+    const subDeckRef = getDeckRef(deck.key);
+    console.log(deck.superDecks);
+    const unlinkSuperDeck = deck.superDecks.map(async (superDeckKey) => {
+      const superDeckRef = getDeckRef(superDeckKey);
+      let subDeckArr = [];
+      await superDeckRef.on("value", (snap) => {
+        if (snap.exists() && snap.val()["sub_decks"]) {
+          subDeckArr = snap.val()["sub_decks"];
+        }
+      });
+      await superDeckRef.update({
+        sub_decks: [...subDeckArr].splice(subDeckArr.indexOf(deck.key), 1),
+      });
+    });
+    await Promise.all(unlinkSuperDeck);
+    await subDeckRef.remove();
+  }
+
+  // add to array in firebase
+  //https://firebase.googleblog.com/2014/04/best-practices-arrays-in-firebase.html
+  async addSubDeck(superDeckKey: string, subDeckTitle: string) {
+    const newSubDeckPath = DeckRef.push().key;
+    const subDeckRef = getDeckRef(newSubDeckPath);
+    await subDeckRef.set({
+      key: newSubDeckPath,
+      uuid: this.uuid,
+      author_id: this.uuid,
+      title: subDeckTitle,
+      created_at: moment().format("YYYY.MM.DD HH:mm"),
+      last_updated_at: moment().format("YYYY.MM.DD HH:mm"),
+      cards: [],
+      sub_decks: [],
+      super_decks: [superDeckKey],
+    });
+    const superDeckRef = getDeckRef(superDeckKey);
+    let subDeckArr = [];
+    await superDeckRef.on("value", (snap) => {
+      if (snap.exists() && snap.val()["sub_decks"]) {
+        subDeckArr = snap.val()["sub_decks"];
+      }
+    });
+    await superDeckRef.update({
+      sub_decks: [...subDeckArr, newSubDeckPath],
     });
   }
 
@@ -106,7 +149,7 @@ question: "사과"}*/
     const promises = validAddCardForm.map((cardForm, i) => {
       const newCardPath = CardRef.child(deckKey).push().key;
       const newCardRef = getCardRef(deckKey).child(newCardPath);
-      console.log(deckKey);
+      //console.log(deckKey);
       const newCard = {
         deck_key: deckKey,
         card_type: cardForm.cardType,
@@ -161,17 +204,5 @@ question: "사과"}*/
     cardRef.update({
       answer: newHint,
     });
-  }
-
-  @action
-  handleCorrect() {
-    this.currStudyCover++;
-    this.currStudyCorrect++;
-  }
-
-  @action
-  handleWrong() {
-    this.currStudyCover++;
-    this.currStudyWrong++;
   }
 }

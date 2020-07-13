@@ -1,21 +1,25 @@
 import { observable, computed, action, autorun } from "mobx";
 import { Deck, Card, CardForm, CardType, AnswerType } from "../types";
 import { DeckRef, CardRef, getDeckRef, getCardRef } from "../firebase";
+import { client } from "../google_cloud";
 
 export class CardStore {
   constructor(rootStore) {
     this.rootStore = rootStore;
     autorun(() => {
       this.currDeck = this.rootStore.deckStore.currDeck;
+    });
+    /*autorun(() => {
       this.currStudyCover = this.rootStore.deckStore.currStudyCover;
       this.currStudyCorrect = this.rootStore.deckStore.currStudyCorrect;
       this.currStudyWrong = this.rootStore.deckStore.currStudyWrong;
-    });
+    });*/
     autorun(() => {
       this.currDeckCardKeys = this.computeCurrDeckCardKeys;
     });
     this.setCurrStudyCard = this.setCurrStudyCard.bind(this);
     this.handleAnswerSubmit = this.handleAnswerSubmit.bind(this);
+    this.resetStudy = this.resetStudy.bind(this);
   }
   rootStore;
 
@@ -38,7 +42,7 @@ export class CardStore {
     getCardRef(deckKey).on(
       "value",
       function (snap) {
-        console.log("getting deck cards...");
+        //console.log("getting deck cards...");
         if (snap.exists()) {
           this.setDeckCards(snap);
         } else {
@@ -83,21 +87,56 @@ export class CardStore {
   }
 
   @action
-  handleAnswerSubmit(cardKey: string, answerType: AnswerType) {
+  async handleAnswerSubmit(cardKey: string, answerType: AnswerType) {
     const cardRef = getCardRef(this.currDeck.key).child(cardKey);
-    cardRef.transaction(function (card) {
-      if (card) {
-        if (answerType === AnswerType.correct) {
-          this.currStudyCorrect++;
-          card["correct_count"]++;
-        } else if (answerType === AnswerType.wrong) {
-          this.currStudyWrong++;
-          card["wrong_count"]++;
+    await cardRef.transaction(
+      function (card) {
+        if (card) {
+          if (answerType === AnswerType.correct) {
+            this.currStudyCorrect++;
+            card["correct_count"]++;
+          } else if (answerType === AnswerType.wrong) {
+            this.currStudyWrong++;
+            card["wrong_count"]++;
+          }
+          this.currStudyCover++;
+          card["cover_count"]++;
         }
-        this.currStudyCover++;
-        card["cover_count"]++;
-      }
-      return card;
-    });
+        return card;
+      }.bind(this)
+    );
   }
+
+  @action
+  resetStudy() {
+    this.currStudyCover = 0;
+    this.currStudyCorrect = 0;
+    this.currStudyWrong = 0;
+  }
+
+  // detectText(file) {
+  //   client.labelDetection(file).then((res) => {
+  //     const labels = res[0].labelAnnotations;
+  //     labels
+  //       .forEach((label) => console.log(label.description))
+  //       .catch((err) => {
+  //         console.error("ERROR: ", err);
+  //       });
+  //   });
+  // }
+
+  //   Make a call to the Vision API to detect text
+  //   const results = await client.batchAnnotateImages({requests});
+  //   const detections = results[0].responses;
+  //   await Promise.all(
+  //     inputFiles.map(async (filename, i) => {
+  //       const response = detections[i];
+  //       if (response.error) {
+  //         console.info(`API Error for ${filename}`, response.error);
+  //         return;
+  //       }
+  //       await extractDescriptions(filename, index, response);
+  //     })
+  //   );
+  // }
 }

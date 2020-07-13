@@ -97,8 +97,8 @@ export class UserStore {
       created_at: moment().format("YYYY.MM.DD HH:mm"),
       last_updated_at: moment().format("YYYY.MM.DD HH:mm"),
       cards: [],
-      subDecks: [],
-      superDecks: [],
+      sub_decks: [],
+      super_decks: [],
     });
   }
 
