@@ -99,7 +99,8 @@ class AllDeckList extends Component {
                 createDeck(e.target.value);
                 e.target.value = "";
               } else {
-                alert("deck title should not be blank");
+                this.setState({ action: "" });
+                //alert("deck title should not be blank");
               }
             }}
             onKeyUp={(e) => {

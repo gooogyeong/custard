@@ -185,7 +185,6 @@ export class UserStore {
     const uploadFirebaseStorage = newProfileChild.put(fileObj);
     uploadFirebaseStorage.on("state_changed", function complete() {
       newProfileChild.getDownloadURL().then(async (url) => {
-        console.log(url);
         const currUserRef = getUserRef(userKey);
         await currUserRef.update({ profile_img_url: url });
       });

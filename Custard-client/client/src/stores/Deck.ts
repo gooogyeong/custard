@@ -79,28 +79,36 @@ export class DeckStore {
   }
 
   async deleteDeck(deck: Deck) {
-    const subDeckRef = getDeckRef(deck.key);
-    console.log(deck.superDecks);
+    const deckRef = getDeckRef(deck.key);
     const unlinkSuperDeck = deck.superDecks.map(async (superDeckKey) => {
       const superDeckRef = getDeckRef(superDeckKey);
-      let subDeckArr = [];
-      await superDeckRef.on("value", (snap) => {
-        if (snap.exists() && snap.val()["sub_decks"]) {
-          subDeckArr = snap.val()["sub_decks"];
-        }
-      });
+      const superDeckSnap = await superDeckRef.once("value");
+      const subDeckArr = superDeckSnap.val()["sub_decks"];
+      console.log(subDeckArr);
+      subDeckArr.splice(subDeckArr.indexOf(deck.key), 1);
+      console.log(subDeckArr);
       await superDeckRef.update({
-        sub_decks: [...subDeckArr].splice(subDeckArr.indexOf(deck.key), 1),
+        sub_decks: subDeckArr, //, [...subDeckArr].slice(0, subDeckArr.indexOf(deck.key))
       });
     });
     await Promise.all(unlinkSuperDeck);
-    await subDeckRef.remove();
+    const deleteSubDecks = deck.subDecks.map(async (subDeckKey) => {
+      const subDeckRef = getDeckRef(subDeckKey);
+      await subDeckRef.remove();
+    });
+    await Promise.all(deleteSubDecks);
+    await deckRef.remove();
   }
 
   // add to array in firebase
   //https://firebase.googleblog.com/2014/04/best-practices-arrays-in-firebase.html
   async addSubDeck(superDeckKey: string, subDeckTitle: string) {
     const newSubDeckPath = DeckRef.push().key;
+    const superDeckRef = getDeckRef(superDeckKey);
+    let superDeckSnap = null;
+    superDeckSnap = await superDeckRef.once("value");
+    const superDeckArr = superDeckSnap.val()["super_decks"] || [];
+    const subDeckArr = superDeckSnap.val()["sub_decks"] || [];
     const subDeckRef = getDeckRef(newSubDeckPath);
     await subDeckRef.set({
       key: newSubDeckPath,
@@ -111,14 +119,7 @@ export class DeckStore {
       last_updated_at: moment().format("YYYY.MM.DD HH:mm"),
       cards: [],
       sub_decks: [],
-      super_decks: [superDeckKey],
-    });
-    const superDeckRef = getDeckRef(superDeckKey);
-    let subDeckArr = [];
-    await superDeckRef.on("value", (snap) => {
-      if (snap.exists() && snap.val()["sub_decks"]) {
-        subDeckArr = snap.val()["sub_decks"];
-      }
+      super_decks: [...superDeckArr, superDeckKey],
     });
     await superDeckRef.update({
       sub_decks: [...subDeckArr, newSubDeckPath],

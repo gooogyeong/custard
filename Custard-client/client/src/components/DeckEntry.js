@@ -83,6 +83,7 @@ class DeckEntry extends Component {
     this.handleStudyClick = this.handleStudyClick.bind(this);
     this.handleAddSubDeckClick = this.handleAddSubDeckClick.bind(this);
     this.handleDeckTitleChange = this.handleDeckTitleChange.bind(this);
+    this.handleStopAdd = this.handleStopAdd.bind(this);
   }
 
   toggleSubDeck() {
@@ -104,6 +105,10 @@ class DeckEntry extends Component {
     this.setState({ deckTitle: newDeckTitle });
   }
 
+  handleStopAdd() {
+    this.setState({ addNewSubDeck: false });
+  }
+
   render() {
     const {
       userDecks,
@@ -113,13 +118,15 @@ class DeckEntry extends Component {
       editDeckTitle,
       addSubDeck,
     } = this.props;
+    console.log(this.state.showSubDeck);
+    console.log(this.state.addNewSubDeck || this.state.showSubDeck);
     return deck ? (
       <div key={deck.key}>
         <Deck
           style={
             deck.superDecks.length
               ? {
-                  margin: "4px 0 4px 20px",
+                  margin: `4px 0 4px ${20 * deck.superDecks.length}px`,
                 }
               : {}
           }
@@ -141,7 +148,7 @@ class DeckEntry extends Component {
               style={
                 deck.superDecks.length
                   ? {
-                      width: "380px",
+                      width: `${400 - 20 * deck.superDecks.length}px`,
                     }
                   : {}
               }
@@ -152,15 +159,11 @@ class DeckEntry extends Component {
                   deck.superDecks.length !== 0
                     ? {
                         cursor: "pointer",
-                        //fontSize: "11pt",
                         color: "#616161",
                         fontWeight: 300,
                         height: "24px",
                         borderRadius: "2px",
                         backgroundColor: "rgb(253, 253, 241)",
-                        //paddingRight: "50px",
-                        //marginRight: "50px",
-                        //width: "300px",
                         width: "100%",
                       }
                     : {}
@@ -201,14 +204,13 @@ class DeckEntry extends Component {
             <Tooltip title="delete category" placement="top">
               <DeleteIcon
                 onClick={() => {
-                  alert("all cards in the deck will be deleted");
+                  alert("all cards and subdecks in the deck will be deleted");
                   deleteDeck(deck);
                 }}
               />
             </Tooltip>
           </DeckTools>
         </Deck>
-        {/*<li>*/}
         <div
           className={
             this.state.addNewSubDeck || this.state.showSubDeck
@@ -235,15 +237,27 @@ class DeckEntry extends Component {
               })
             : null}
           <NewSubDeck
-            style={this.state.addNewSubDeck ? {} : { display: "none" }}
+            style={
+              this.state.addNewSubDeck
+                ? {
+                    marginLeft: `${24 * (deck.superDecks.length + 1) + 19}px`,
+                    width: `${370 - 24 * deck.superDecks.length + 7}px`,
+                  }
+                : { display: "none" }
+            }
             className="newDeckInput"
             defaultValue="customize new deck"
             type="text"
+            onClick={(e) => {
+              e.target.value = "";
+            }}
             onBlur={(e) => {
               if (e.target.value.length) {
                 addSubDeck(deck.key, e.target.value);
+                e.target.value = "";
+              } else {
+                this.handleStopAdd();
               }
-              e.target.value = "";
             }}
             onKeyUp={(e) => {
               if (e.keyCode === 13) {
@@ -255,7 +269,6 @@ class DeckEntry extends Component {
             }}
           />
         </div>
-        {/*</li>*/}
       </div>
     ) : null;
   }
