@@ -1,3 +1,5 @@
+@import "~antd/dist/antd.css";
+
 .app {
   padding: 20px 250px 10px 0px;
   font-family: Lucida Sans Unicode;

@@ -4,6 +4,7 @@ import { Link, Switch, Redirect } from "react-router-dom";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import styled from "styled-components";
 import "./App.css";
+import "antd/dist/antd.css";
 import Mypage from "./components/Mypage";
 import Login from "./components/Login";
 import Study from "./components/Study";

@@ -42,7 +42,6 @@ class Study extends Component {
     this.hideHint = this.hideHint.bind(this);
     this.handleMarkedTrue = this.handleMarkedTrue.bind(this);
     this.handleMarkedFalse = this.handleMarkedFalse.bind(this);
-    //this.setAnswerSubmitted = this.setAnswerSubmitted.bind(this);
     this.resetAnswerSubmitted = this.resetAnswerSubmitted.bind(this);
     this.handleOkayClick = this.handleOkayClick.bind(this);
     this.handleWrongClick = this.handleWrongClick.bind(this);
@@ -130,7 +129,6 @@ class Study extends Component {
       } = this.props.cardStore;
       this.hideHint();
       this.hideAnswer();
-
       const currCardIdx =
         currDeckCardKeys && currStudyCard
           ? currDeckCardKeys.indexOf(currStudyCard.key)
@@ -146,7 +144,7 @@ class Study extends Component {
   }
 
   render() {
-    const { currDeck } = this.props.deckStore;
+    const { currDeck, handleCorrect, handleWrong } = this.props.deckStore;
     const {
       currDeckCards,
       currDeckCardKeys,

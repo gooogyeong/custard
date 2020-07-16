@@ -1,10 +1,10 @@
 import React, { Component } from "react";
+import styled from "styled-components";
 import { toJS } from "mobx";
 import { inject, observer } from "mobx-react";
 import { Link as RouterLink } from "react-router-dom";
 import { Formik } from "formik";
 import { withStyles } from "@material-ui/core/styles";
-// import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Link from "@material-ui/core/Link";
 import TextField from "@material-ui/core/TextField";
@@ -12,14 +12,13 @@ import Button from "@material-ui/core/Button";
 import Tooltip from "@material-ui/core/Tooltip";
 import EditIcon from "@material-ui/icons/Edit";
 import DeleteIcon from "@material-ui/icons/Delete";
-
 import DeckSpeedDial from "./DeckSpeedDial";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CardType from "./selectMenu/CardType";
-
 import "../styles/Card.css";
+import "../styles/custom-antd.css";
 import { brown } from "@material-ui/core/colors";
-//import { editQuestion } from "../actions/cardActions";
+import { Spin } from "antd";
 
 const styles = {
   root: {
@@ -30,6 +29,13 @@ const styles = {
     width: 500,
   },
 };
+
+const SpinContainer = styled.div`
+display: flex;
+width: 100%;
+padding: 25px 0 0 47.55%;
+justify-content; space-around;
+`;
 
 @inject((stores) => ({
   userStore: stores.rootStore.userStore,
@@ -57,11 +63,9 @@ class Card extends Component {
     this.setState({ cardType: cardType });
   }
 
-  //수정시에도 Ctrl + Shift + s 단축키 사용가능하도록 추가
   handleAnswerInputKeyUp(i, e) {
     const wholeText = e.target.value;
     const selectedText = document.getSelection().toString();
-    //console.log(selectedText);
     const count = this.state.answerTargetCount;
     const markedUpText =
       wholeText.slice(0, wholeText.indexOf(selectedText)) +
@@ -70,7 +74,6 @@ class Card extends Component {
       selectedText +
       "}}" +
       wholeText.slice(wholeText.indexOf(selectedText) + selectedText.length);
-
     console.log(markedUpText);
     e.target.value = markedUpText;
   }
@@ -134,184 +137,185 @@ class Card extends Component {
               </Grid>
             </Grid>
           }
-          {currDeckCards
-            ? currDeckCards.map((card, idx) => {
-                return (
-                  <Formik
-                    initialValues={{
-                      cardKey: card.key,
-                      cardtype: card.cardType,
-                      question: card.question,
-                      answer: card.answer,
-                      answer_target: card.answer_target,
-                      hint: card.hint,
-                    }}
-                    enableReinitialize={true}
-                    onSubmit={(values, { setSubmitting }) => {
-                      setSubmitting(true);
-                    }}
-                  >
-                    {({ values, isSubmitting, handleChange, handleSubmit }) => {
-                      //* Formik에서는 values props로 state 관리
-                      return (
-                        <form onSubmit={handleSubmit}>
+          {currDeckCards ? (
+            currDeckCards.map((card, idx) => {
+              return (
+                <Formik
+                  initialValues={{
+                    cardKey: card.key,
+                    cardtype: card.cardType,
+                    question: card.question,
+                    answer: card.answer,
+                    answer_target: card.answer_target,
+                    hint: card.hint,
+                  }}
+                  enableReinitialize={true}
+                  onSubmit={(values, { setSubmitting }) => {
+                    setSubmitting(true);
+                  }}
+                >
+                  {({ values, isSubmitting, handleChange, handleSubmit }) => {
+                    //* Formik에서는 values props로 state 관리
+                    return (
+                      <form onSubmit={handleSubmit}>
+                        <Grid
+                          container
+                          spacing={1}
+                          className="card_content"
+                          direction="row"
+                          justify="center"
+                          alignItems="center"
+                        >
                           <Grid
-                            container
-                            spacing={1}
-                            className="card_content"
-                            direction="row"
-                            justify="center"
-                            alignItems="center"
+                            item
+                            xs={6}
+                            sm={6}
+                            md={6}
+                            className="card_cardtype"
                           >
-                            <Grid
-                              item
-                              xs={6}
-                              sm={6}
-                              md={6}
-                              className="card_cardtype"
-                            >
-                              <div>Card{idx + 1}</div>
-                              <CardType
-                                className="card_cardtype_button"
-                                values={values}
-                                handleCardType={this.handleCardType.bind(this)}
-                                editCardType={editCardType}
-                              />
-                              <br />
-                            </Grid>
-                            <Grid xs={6} sm={6} md={6}>
-                              <Button className="card_button">
-                                <Tooltip title="delete card" placement="right">
-                                  <DeleteIcon
-                                    onClick={() => {
-                                      deleteCard(card.key);
-                                    }}
-                                  />
-                                </Tooltip>
-                              </Button>
-                              <Button type="submit" className="card_button">
-                                <Tooltip title="edit card" placement="left">
-                                  <EditIcon
-                                    onClick={function () {
-                                      this.handleEditing();
-                                    }.bind(this)}
-                                  />
-                                </Tooltip>
-                              </Button>
-                            </Grid>
+                            <div>Card{idx + 1}</div>
+                            <CardType
+                              className="card_cardtype_button"
+                              values={values}
+                              handleCardType={this.handleCardType.bind(this)}
+                              editCardType={editCardType}
+                            />
+                            <br />
                           </Grid>
-                          <div className="card_text_container">
-                            <Grid container spacing={3} className="card_text">
-                              <Grid item xs={12} sm={12} md={12}>
-                                <div>Question. {idx + 1}</div>
-                                <TextField
-                                  fullWidth
-                                  style={{
-                                    backgroundColor: "#fcfbe9",
-                                    borderRadius: "3px",
-                                    color: brown,
-                                  }}
-                                  name="question"
-                                  disabled={this.state.isEditing ? false : true}
-                                  type="text"
-                                  multiline
-                                  variant="outlined"
-                                  rows="5"
-                                  value={values.question}
-                                  onChange={(e) => {
-                                    handleChange(e);
-                                    values.question = e.target.value;
-                                  }}
-                                  onBlur={() => {
-                                    editQuestion(
-                                      values.cardKey,
-                                      values.question
-                                    );
+                          <Grid xs={6} sm={6} md={6}>
+                            <Button className="card_button">
+                              <Tooltip title="delete card" placement="right">
+                                <DeleteIcon
+                                  onClick={() => {
+                                    deleteCard(card.key);
                                   }}
                                 />
-                              </Grid>
-                              <Grid item xs={12} sm={12} md={12}>
-                                <br />
-                                &nbsp;Answer. {idx + 1}
-                                <TextField
-                                  fullWidth
-                                  style={{
-                                    backgroundColor: "#fcfbe9",
-                                    borderRadius: "3px",
-                                    color: brown,
-                                  }}
-                                  name="answer"
-                                  disabled={this.state.isEditing ? false : true}
-                                  type="text"
-                                  multiline
-                                  variant="outlined"
-                                  rows="5"
-                                  value={values.answer}
-                                  onChange={(e) => {
-                                    if (
-                                      e.ctrlKey &&
-                                      e.shiftKey &&
-                                      e.which == 83
-                                    ) {
-                                      this.handleAnswerInputKeyUp(idx, e);
-                                    }
+                              </Tooltip>
+                            </Button>
+                            <Button type="submit" className="card_button">
+                              <Tooltip title="edit card" placement="left">
+                                <EditIcon
+                                  onClick={function () {
+                                    this.handleEditing();
+                                  }.bind(this)}
+                                />
+                              </Tooltip>
+                            </Button>
+                          </Grid>
+                        </Grid>
+                        <div className="card_text_container">
+                          <Grid container spacing={3} className="card_text">
+                            <Grid item xs={12} sm={12} md={12}>
+                              <div>Question. {idx + 1}</div>
+                              <TextField
+                                fullWidth
+                                style={{
+                                  backgroundColor: "#fcfbe9",
+                                  borderRadius: "3px",
+                                  color: brown,
+                                }}
+                                name="question"
+                                disabled={this.state.isEditing ? false : true}
+                                type="text"
+                                multiline
+                                variant="outlined"
+                                rows="5"
+                                value={values.question}
+                                onChange={(e) => {
+                                  handleChange(e);
+                                  values.question = e.target.value;
+                                }}
+                                onBlur={() => {
+                                  editQuestion(values.cardKey, values.question);
+                                }}
+                              />
+                            </Grid>
+                            <Grid item xs={12} sm={12} md={12}>
+                              <br />
+                              &nbsp;Answer. {idx + 1}
+                              <TextField
+                                fullWidth
+                                style={{
+                                  backgroundColor: "#fcfbe9",
+                                  borderRadius: "3px",
+                                  color: brown,
+                                }}
+                                name="answer"
+                                disabled={this.state.isEditing ? false : true}
+                                type="text"
+                                multiline
+                                variant="outlined"
+                                rows="5"
+                                value={values.answer}
+                                onChange={(e) => {
+                                  if (
+                                    e.ctrlKey &&
+                                    e.shiftKey &&
+                                    e.which == 83
+                                  ) {
+                                    this.handleAnswerInputKeyUp(idx, e);
+                                  }
+                                  handleChange(e);
+                                  values.answer = e.target.value;
+                                }}
+                                onBlur={() => {
+                                  editAnswer(values.cardKey, values.answer);
+                                }}
+                                onKeyUp={(e) => {
+                                  if (
+                                    e.ctrlKey &&
+                                    e.shiftKey &&
+                                    e.which == 83
+                                  ) {
+                                    this.handleAnswerInputKeyUp(idx, e);
                                     handleChange(e);
                                     values.answer = e.target.value;
-                                  }}
-                                  onBlur={() => {
-                                    editAnswer(values.cardKey, values.answer);
-                                  }}
-                                  onKeyUp={(e) => {
-                                    if (
-                                      e.ctrlKey &&
-                                      e.shiftKey &&
-                                      e.which == 83
-                                    ) {
-                                      this.handleAnswerInputKeyUp(idx, e);
-                                      handleChange(e);
-                                      values.answer = e.target.value;
-                                    }
-                                  }}
-                                />
-                              </Grid>
-                              <Grid item xs={12} sm={12} md={12}>
-                                <br />
-                                &nbsp;Hint. {idx + 1}
-                                <TextField
-                                  fullWidth
-                                  style={{
-                                    backgroundColor: "#fcfbe9",
-                                    borderRadius: "3px",
-                                    color: brown,
-                                  }}
-                                  name="hint"
-                                  disabled={this.state.isEditing ? false : true}
-                                  type="text"
-                                  multiline
-                                  variant="outlined"
-                                  rows="5"
-                                  value={values.hint}
-                                  onChange={(e) => {
-                                    handleChange(e);
-                                    values.hint = e.target.value;
-                                  }}
-                                  onBlur={() => {
-                                    editHint(values.cardKey, values.hint);
-                                  }}
-                                />
-                              </Grid>
+                                  }
+                                }}
+                              />
                             </Grid>
-                            <br />
-                          </div>
+                            <Grid item xs={12} sm={12} md={12}>
+                              <br />
+                              &nbsp;Hint. {idx + 1}
+                              <TextField
+                                fullWidth
+                                style={{
+                                  backgroundColor: "#fcfbe9",
+                                  borderRadius: "3px",
+                                  color: brown,
+                                }}
+                                name="hint"
+                                disabled={this.state.isEditing ? false : true}
+                                type="text"
+                                multiline
+                                variant="outlined"
+                                rows="5"
+                                value={values.hint}
+                                onChange={(e) => {
+                                  handleChange(e);
+                                  values.hint = e.target.value;
+                                }}
+                                onBlur={() => {
+                                  editHint(values.cardKey, values.hint);
+                                }}
+                              />
+                            </Grid>
+                          </Grid>
                           <br />
-                          <br />
-                        </form>
-                      );
-                    }}
-                  </Formik>
-                );
-              })
-            : null}
+                        </div>
+                        <br />
+                        <br />
+                      </form>
+                    );
+                  }}
+                </Formik>
+              );
+            })
+          ) : (
+            <SpinContainer>
+              <Spin size="large" type="primary" />
+            </SpinContainer>
+          )}
           <Grid container>
             <Grid item xs={12} sm={12} md={12}>
               {
