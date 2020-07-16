@@ -16,9 +16,9 @@ import Score from "./components/Score";
 
 //import { initUser, checkAuthPersistence } from "./actions/mypageActions";
 
-import custard_logo_1 from "./custard_logo_1.png";
-import custard_logo_2 from "./custard_logo_2.png";
-import custard_logo_3 from "./custard_logo_3.png";
+//import custard_logo_1 from "./custard_logo_1.png";
+//import custard_logo_2 from "./custard_logo_2.png";
+//import custard_logo_3 from "./custard_logo_3.png";
 import custard_logo_no from "./custard_logo_no.png";
 import custard_logo_noo from "./custard_logo_noo.png";
 
@@ -61,7 +61,7 @@ class App extends Component {
             <img
               className="logout-logo"
               src={custard_logo_noo}
-              style={isLogin ? { display: "none" } : {}}
+              style={isLogin === false ? {} : { display: "none" }}
             />
           </div>
 
@@ -81,9 +81,9 @@ class App extends Component {
                 exact
                 path="/"
                 render={() => {
-                  if (uuid) {
+                  if (isLogin === true) {
                     return <Redirect to="/mypage" />;
-                  } else {
+                  } else if (isLogin === false) {
                     return <Redirect to="/login" />;
                   }
                 }}
@@ -93,10 +93,10 @@ class App extends Component {
                 path="/login"
                 component={Login}
                 render={() => {
-                  if (isLogin) {
-                    return <Redirect to="/mypage" />;
-                  } else {
+                  if (isLogin === false) {
                     return <Login />;
+                  } else {
+                    return <Redirect to="/mypage" />;
                   }
                 }}
               />

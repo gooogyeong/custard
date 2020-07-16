@@ -7,6 +7,7 @@ import PlayArrow from "@material-ui/icons/PlayArrow";
 import "../styles/AllDeckList.css";
 import OpenIconSpeedDial from "./OpenIconSpeedDial";
 import DeckEntry from "./DeckEntry";
+import { Loading } from "./fragmented/Loading";
 
 const DeckListContainer = styled.div`
   width: 600px;
@@ -70,21 +71,23 @@ class AllDeckList extends Component {
     } = this.props.deckStore;
     return (
       <DeckListContainer>
-        {userDecks
-          ? userDecks.map((deck) => {
-              return deck.superDecks.length === 0 ? (
-                <DeckEntry
-                  history={this.props.history}
-                  userDecks={userDecks}
-                  deck={deck}
-                  setCurrDeck={setCurrDeck}
-                  editDeckTitle={editDeckTitle}
-                  deleteDeck={deleteDeck}
-                  addSubDeck={addSubDeck}
-                />
-              ) : null;
-            })
-          : null}
+        {userDecks !== null ? (
+          userDecks.map((deck) => {
+            return deck.superDecks.length === 0 ? (
+              <DeckEntry
+                history={this.props.history}
+                userDecks={userDecks}
+                deck={deck}
+                setCurrDeck={setCurrDeck}
+                editDeckTitle={editDeckTitle}
+                deleteDeck={deleteDeck}
+                addSubDeck={addSubDeck}
+              />
+            ) : null;
+          })
+        ) : (
+          <Loading />
+        )}
         {this.state.action === "add_new_deck" ? (
           <NewDeck
             ref={this.newCategory}
@@ -115,15 +118,17 @@ class AllDeckList extends Component {
             }}
           ></NewDeck>
         ) : null}
-        <OpenIconSpeedDial
-          action={this.state.action}
-          actions={[
-            {
-              icon: <AddIcon onClick={this.handleAddClick} />,
-              name: "add new deck",
-            },
-          ]}
-        />
+        {userDecks !== null ? (
+          <OpenIconSpeedDial
+            action={this.state.action}
+            actions={[
+              {
+                icon: <AddIcon onClick={this.handleAddClick} />,
+                name: "add new deck",
+              },
+            ]}
+          />
+        ) : null}
       </DeckListContainer>
     );
   }

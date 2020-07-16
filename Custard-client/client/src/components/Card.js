@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-import styled from "styled-components";
-import { toJS } from "mobx";
 import { inject, observer } from "mobx-react";
 import { Link as RouterLink } from "react-router-dom";
 import { Formik } from "formik";
@@ -16,9 +14,8 @@ import DeckSpeedDial from "./DeckSpeedDial";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CardType from "./selectMenu/CardType";
 import "../styles/Card.css";
-import "../styles/custom-antd.css";
 import { brown } from "@material-ui/core/colors";
-import { Spin } from "antd";
+import { Loading } from "./fragmented/Loading";
 
 const styles = {
   root: {
@@ -29,13 +26,6 @@ const styles = {
     width: 500,
   },
 };
-
-const SpinContainer = styled.div`
-display: flex;
-width: 100%;
-padding: 25px 0 0 47.55%;
-justify-content; space-around;
-`;
 
 @inject((stores) => ({
   userStore: stores.rootStore.userStore,
@@ -312,9 +302,7 @@ class Card extends Component {
               );
             })
           ) : (
-            <SpinContainer>
-              <Spin size="large" type="primary" />
-            </SpinContainer>
+            <Loading />
           )}
           <Grid container>
             <Grid item xs={12} sm={12} md={12}>
