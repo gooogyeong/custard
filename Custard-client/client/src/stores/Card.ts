@@ -54,6 +54,7 @@ export class CardStore {
         if (snap.exists()) {
           this.setDeckCards(snap);
         } else {
+          this.currDeckCards = [];
           this.errMsg = "no card in this deck";
         }
       }.bind(this)

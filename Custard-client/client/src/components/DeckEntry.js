@@ -101,8 +101,10 @@ class DeckEntry extends Component {
     });
   }
 
-  handleDeckTitleChange(newDeckTitle) {
-    this.setState({ deckTitle: newDeckTitle });
+  handleDeckTitleChange(deckKey, newDeckTitle) {
+    //this.setState({ deckTitle: e.target.value });
+    //e.target.value = this.state.deckTitle;
+    this.props.editDeckTitleInStore(deckKey, newDeckTitle);
   }
 
   handleStopAdd() {
@@ -118,6 +120,7 @@ class DeckEntry extends Component {
       editDeckTitle,
       addSubDeck,
     } = this.props;
+    //console.log(deck.title);
     return deck ? (
       <div key={deck.key}>
         <Deck
@@ -168,9 +171,9 @@ class DeckEntry extends Component {
                 }
                 type="text"
                 disabled={false}
-                value={this.state.deckTitle}
+                value={this.props.deck.title /*this.state.deckTitle*/}
                 onChange={(e) => {
-                  this.handleDeckTitleChange(e.target.value);
+                  this.handleDeckTitleChange(deck.key, e.target.value);
                 }}
                 onBlur={(e) => {
                   editDeckTitle(deck.key, e.target.value);

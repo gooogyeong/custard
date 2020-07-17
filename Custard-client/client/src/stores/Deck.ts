@@ -37,6 +37,7 @@ export class DeckStore {
           if (snap.exists()) {
             this.setUserDecks(snap);
           } else {
+            this.userDecks = [];
             this.errMsg = "no decks for user";
           }
         }.bind(this)
@@ -127,6 +128,12 @@ export class DeckStore {
     await superDeckRef.update({
       sub_decks: [...subDeckArr, newSubDeckPath],
     });
+  }
+
+  @action
+  editDeckTitleInStore(deckKey: string, newDeckTitle: string) {
+    const deck = this.userDecks.filter((deck) => deck.key === deckKey)[0];
+    deck.title = newDeckTitle;
   }
 
   editDeckTitle(deckKey: string, newDeckTitle: string) {

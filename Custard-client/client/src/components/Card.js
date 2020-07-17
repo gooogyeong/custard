@@ -129,7 +129,9 @@ class Card extends Component {
               </Grid>
             </Grid>
           }
-          {currDeckCards ? (
+          {currDeckCards === null ? (
+            <Loading />
+          ) : (
             currDeckCards.map((card, idx) => {
               return (
                 <Formik
@@ -303,8 +305,6 @@ class Card extends Component {
                 </Formik>
               );
             })
-          ) : (
-            <Loading />
           )}
           <Grid container>
             <Grid item xs={12} sm={12} md={12}>

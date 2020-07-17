@@ -66,12 +66,13 @@ class AllDeckList extends Component {
     const {
       userDecks,
       createDeck,
+      editDeckTitleInStore,
       editDeckTitle,
       setCurrDeck,
       deleteDeck,
       addSubDeck,
     } = this.props.deckStore;
-    if (userDecks) console.log(userDecks.map((deck) => deck.title));
+    //if (userDecks) console.log(userDecks.map((deck) => deck.title));
     return (
       <DeckListContainer>
         {userDecks !== null ? (
@@ -82,6 +83,7 @@ class AllDeckList extends Component {
                 userDecks={userDecks}
                 deck={deck}
                 setCurrDeck={setCurrDeck}
+                editDeckTitleInStore={editDeckTitleInStore}
                 editDeckTitle={editDeckTitle}
                 deleteDeck={deleteDeck}
                 addSubDeck={addSubDeck}
