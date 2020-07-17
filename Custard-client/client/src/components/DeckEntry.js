@@ -118,8 +118,6 @@ class DeckEntry extends Component {
       editDeckTitle,
       addSubDeck,
     } = this.props;
-    console.log(this.state.showSubDeck);
-    console.log(this.state.addNewSubDeck || this.state.showSubDeck);
     return deck ? (
       <div key={deck.key}>
         <Deck

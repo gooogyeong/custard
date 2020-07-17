@@ -162,11 +162,12 @@ input {
 }
 
 .custom-file-input {
-  float: right;
+  /*float: right;*/
   display: block;
-  position: relative;
+  /*position: relative;*/
   right: 2px;
-  float: left;
+  /*float: left;*/
+  margin: 2px 2.5px 0 -50px;
   background-color: transparent;
 }
 
@@ -187,7 +188,7 @@ input {
   -webkit-user-select: none;
   cursor: pointer;
   font-size: 10pt;
-  width: 60px;
+  width: 78px;
   float: right;
 }
 
@@ -197,10 +198,12 @@ input {
   /*background: linear-gradient(top, #f9f9f9, #e3e3e3); */
   border: 1px solid #999;
   border-radius: 3px;
-  padding: 5px 8px;
+  padding: 5px 8px 5px 8px;
   outline: none;
   white-space: nowrap;
   cursor: pointer;
   font-size: 10pt;
+  margin-top: 1.8px;
+  height: 90%;
   /* float: right; */
 }

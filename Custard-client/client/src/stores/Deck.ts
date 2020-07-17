@@ -85,7 +85,8 @@ export class DeckStore {
       const superDeckSnap = await superDeckRef.once("value");
       const subDeckArr = superDeckSnap.val()["sub_decks"];
       console.log(subDeckArr);
-      subDeckArr.splice(subDeckArr.indexOf(deck.key), 1);
+      const subDeckIdx = subDeckArr.indexOf(deck.key);
+      if (subDeckIdx !== -1) subDeckArr.splice(subDeckIdx, 1);
       console.log(subDeckArr);
       await superDeckRef.update({
         sub_decks: subDeckArr, //, [...subDeckArr].slice(0, subDeckArr.indexOf(deck.key))
