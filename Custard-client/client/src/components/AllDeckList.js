@@ -58,6 +58,8 @@ class AllDeckList extends Component {
 
   componentDidMount() {
     this.props.deckStore.getUserDecks(this.props.userStore.uuid);
+    this.props.deckStore.resetCurrDeck();
+    this.props.cardStore.resetCurrDeckCards();
   }
 
   render() {
@@ -69,6 +71,7 @@ class AllDeckList extends Component {
       deleteDeck,
       addSubDeck,
     } = this.props.deckStore;
+    if (userDecks) console.log(userDecks.map((deck) => deck.title));
     return (
       <DeckListContainer>
         {userDecks !== null ? (

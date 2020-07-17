@@ -68,14 +68,14 @@ class Card extends Component {
     e.target.value = markedUpText;
   }
 
-  componentDidMount() {
-    if (!this.props.deckStore.currDeck) {
-      this.props.deckStore.setCurrDeck(this.props.match.params.deckKey);
-    }
-    if (!this.props.deckStore.userDecks) {
-      this.props.deckStore.getUserDecks(this.props.userStore.uuid);
-    }
-    this.props.cardStore.getDeckCards(this.props.match.params.deckKey);
+  async componentDidMount() {
+    //if (!this.props.deckStore.currDeck) {
+    await this.props.deckStore.setCurrDeck(this.props.match.params.deckKey);
+    //}
+    //if (!this.props.deckStore.userDecks) {
+    await this.props.deckStore.getUserDecks(this.props.userStore.uuid);
+    //}
+    await this.props.cardStore.getDeckCards(this.props.match.params.deckKey);
   }
 
   handleEditing() {
@@ -95,6 +95,8 @@ class Card extends Component {
       editHint,
     } = this.props.deckStore;
     const { currDeckCards, resetStudy } = this.props.cardStore;
+    //if (currDeck) console.log(currDeck.title);
+    //if (currDeckCards) console.log(currDeckCards.map((card) => card.answer));
     return currDeck ? (
       <div id="card">
         <Grid container spacing={3} className="card_container">

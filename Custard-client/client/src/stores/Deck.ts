@@ -3,6 +3,7 @@ import moment from "moment";
 import { DeckRef, CardRef, getDeckRef, getCardRef } from "../firebase";
 import { Deck, Card, CardForm, CardType } from "../types";
 import { client } from "../google_cloud";
+import { actionFieldDecorator } from "mobx/lib/internal";
 
 export class DeckStore {
   constructor(rootStore) {
@@ -84,6 +85,7 @@ export class DeckStore {
       const superDeckRef = getDeckRef(superDeckKey);
       const superDeckSnap = await superDeckRef.once("value");
       const subDeckArr = superDeckSnap.val()["sub_decks"];
+      console.log(`${superDeckSnap.val()["title"]} sub_decks: `);
       console.log(subDeckArr);
       const subDeckIdx = subDeckArr.indexOf(deck.key);
       if (subDeckIdx !== -1) subDeckArr.splice(subDeckIdx, 1);
@@ -139,6 +141,11 @@ export class DeckStore {
     this.currDeck = this.userDecks
       ? this.userDecks.filter((deck) => deck.key === deckKey)[0]
       : null;
+  }
+
+  @action
+  resetCurrDeck() {
+    this.currDeck = null;
   }
 
   createNewCards(deckKey: string, validAddCardForm: any[] /*CardForm[]*/) {

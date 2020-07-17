@@ -38,11 +38,19 @@ export class CardStore {
   }
 
   @action
+  resetCurrDeckCards() {
+    console.log(this.currDeckCards);
+    this.currDeckCards = null;
+    console.log(this.currDeckCards);
+  }
+
+  @action
   getDeckCards(deckKey: string) {
+    //console.log('getting deck cards')
     getCardRef(deckKey).on(
       "value",
       function (snap) {
-        //console.log("getting deck cards...");
+        console.log("getting deck cards...");
         if (snap.exists()) {
           this.setDeckCards(snap);
         } else {
