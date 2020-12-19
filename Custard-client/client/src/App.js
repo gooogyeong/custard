@@ -1,25 +1,31 @@
 import React, { Component } from "react";
+import { inject, observer } from "mobx-react";
 import { Link, Switch, Redirect } from "react-router-dom";
 import { BrowserRouter as Router, Route } from "react-router-dom";
-import { connect } from "react-redux";
+import styled from "styled-components";
 import "./App.css";
-import MypageRoot from "./components/MypageRoot";
-import LoginRoot from "./components/LoginRoot";
-import Study from "./containers/Study";
-import AllDeckList from "./containers/AllDeckList";
-import Deck from "./containers/Deck";
-import AddCard from "./containers/AddCard";
-import Signup from "./containers/Signup";
-import Score from "./containers/Score";
+import "antd/dist/antd.css";
+import Mypage from "./components/Mypage";
+import Login from "./components/Login";
+import Study from "./components/Study";
+import AllDeckList from "./components/AllDeckList";
+import Deck from "./components/Deck";
+import AddCard from "./components/AddCard";
+import Signup from "./components/Signup";
+import Score from "./components/Score";
 
-import { updateUserInfo } from "./actions/mypageActions";
+//import { initUser, checkAuthPersistence } from "./actions/mypageActions";
 
-import custard_logo_1 from "./custard_logo_1.png";
-import custard_logo_2 from "./custard_logo_2.png";
-import custard_logo_3 from "./custard_logo_3.png";
+//import custard_logo_1 from "./custard_logo_1.png";
+//import custard_logo_2 from "./custard_logo_2.png";
+//import custard_logo_3 from "./custard_logo_3.png";
 import custard_logo_no from "./custard_logo_no.png";
 import custard_logo_noo from "./custard_logo_noo.png";
 
+@inject((stores) => ({
+  userStore: stores.rootStore.userStore,
+}))
+@observer
 class App extends Component {
   state = { sideNav: false };
   //material-ui Drawer 사용해도 됨
@@ -35,12 +41,12 @@ class App extends Component {
   }
 
   componentDidMount() {
-    this.props.updateUserInfo();
+    //console.log("app checking auth persistence");
+    this.props.userStore.checkAuthPersistence();
   }
 
   render() {
-    const { isLogin } = this.props;
-    //console.log(isLogin);
+    const { uuid, isLogin } = this.props.userStore;
     return (
       <div>
         <div id="login-logo-container">
@@ -55,7 +61,7 @@ class App extends Component {
             <img
               className="logout-logo"
               src={custard_logo_noo}
-              style={isLogin ? { display: "none" } : {}}
+              style={isLogin === false ? {} : { display: "none" }}
             />
           </div>
 
@@ -75,29 +81,29 @@ class App extends Component {
                 exact
                 path="/"
                 render={() => {
-                  if (isLogin) {
+                  if (isLogin === true) {
                     return <Redirect to="/mypage" />;
-                  } else {
+                  } else if (isLogin === false) {
                     return <Redirect to="/login" />;
                   }
                 }}
               />
-              {/* <Route exact path="/" component={Landing} /> */}
               <Route
                 exact
                 path="/login"
-                component={LoginRoot}
+                component={Login}
                 render={() => {
-                  if (isLogin) {
-                    return <Redirect to="/mypage" />;
+                  if (isLogin === false) {
+                    return <Login />;
                   } else {
-                    return <LoginRoot />;
+                    return <Redirect to="/mypage" />;
                   }
                 }}
               />
               <Route
                 exact
                 path="/decks"
+                component={AllDeckList}
                 render={() => {
                   if (isLogin) {
                     return <AllDeckList />;
@@ -106,58 +112,24 @@ class App extends Component {
                   }
                 }}
               />
-              <Route
-                exact
-                path="/signup"
-                render={() => {
-                  if (isLogin) {
-                    return <Redirect to="/mypage" />;
-                  } else {
-                    return <Signup />;
-                  }
-                }}
-              />
+              <Route exact path="/signup" component={Signup} />
               <Route
                 exact
                 path="/mypage"
-                component={MypageRoot}
+                component={Mypage}
                 render={() => {
                   if (isLogin) {
-                    return <MypageRoot />;
+                    return <Mypage />;
                   } else {
                     return <Redirect to="/login" />;
                   }
                 }}
               />
-              {/* //? category => cate_route */}
+              <Route exact path="/deck/:deckKey" component={Deck} />
+              <Route exact path="/add/:deckKey" component={AddCard} />
               <Route
                 exact
-                // path="/deck"
-                path="/deck/:cate_route/:title" //<-"/deck:title" //TODO: match.params.title
-                component={Deck}
-                render={() => {
-                  if (isLogin) {
-                    return <Deck />;
-                  } else {
-                    return <Redirect to="/login" />;
-                  }
-                }}
-              />
-              <Route
-                exact
-                path="/addCard/:cate_route/:title" //!어떤 deek에 카드를 추가하는지 알 수 있도록 router 추가했어요
-                component={AddCard}
-                render={() => {
-                  if (isLogin) {
-                    return <AddCard />;
-                  } else {
-                    return <Redirect to="/login" />;
-                  }
-                }}
-              />
-              <Route
-                exact
-                path="/study/:cate_route/:title/:cardId" //TODO: url에 :cardId 이런식으로 들어가려면 각 카드에 id가 있어야하긴 하겠네요 ㅠ
+                path="/study/:deckKey/:cardKey" //TODO: url에 :cardId 이런식으로 들어가려면 각 카드에 id가 있어야하긴 하겠네요 ㅠ
                 component={Study}
                 render={() => {
                   if (isLogin) {
@@ -169,7 +141,7 @@ class App extends Component {
               />
               <Route
                 exact
-                path="/score/:cate_route/:title" //TODO: url에 :cardId 이런식으로 들어가려면 각 카드에 id가 있어야하긴 하겠네요 ㅠ
+                path="/score/:deckKey" //TODO: url에 :cardId 이런식으로 들어가려면 각 카드에 id가 있어야하긴 하겠네요 ㅠ
                 component={Score}
                 render={() => {
                   if (isLogin) {
@@ -186,21 +158,5 @@ class App extends Component {
     );
   }
 }
-
-const mapStateToProps = (state) => {
-  return {
-    isLogin: state.mypage.isLogin,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    updateUserInfo: () => {
-      dispatch(updateUserInfo());
-    },
-  };
-};
-
-App = connect(mapStateToProps, mapDispatchToProps)(App);
 
 export default App;

@@ -8,10 +8,8 @@ const path = require("path");
 const port = 4000;
 const models = require("./models/index");
 
-
 //const { shouldSendSameSiteNone } = require('should-send-same-site-none');
 //app.use(shouldSendSameSiteNone);
-
 
 const urlencode = require("urlencode"); // 인코딩 모듈
 const fs = require("fs");
@@ -41,10 +39,10 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "http://custard-client.s3-website.ap-northeast-2.amazonaws.com"
+      "http://custard-client.s3-website.ap-northeast-2.amazonaws.com",
     ],
     methods: ["GET", "POST", "PATCH", "DELETE"],
-    credentials: true
+    credentials: true,
   })
 );
 
@@ -60,7 +58,7 @@ models.sequelize
   .then(() => {
     console.log("DB 연결 성공");
   })
-  .catch(err => {
+  .catch((err) => {
     console.log("연결 실패");
     console.log(err);
   });
@@ -86,7 +84,7 @@ const connection = mysql.createConnection({
   user: config.development.username, //* "root"
   password: config.development.password, //* yourPassword
   port: 3306,
-  database: config.development.database //* yourDatabase
+  database: config.development.database, //* yourDatabase
 });
 
 connection.connect();

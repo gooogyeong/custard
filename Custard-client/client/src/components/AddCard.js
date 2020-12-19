@@ -1,7 +1,8 @@
 import React from "react";
+import { inject, observer } from "mobx-react";
+import moment from "moment";
+import { CardType } from "../types";
 import AddTextType from "./selectMenu/AddTextType";
-//import AddCardType from "./selectMenu/AddCardType";
-
 import CSV from "./textType/FileUploader_csv";
 import Image from "./textType/FileUploader_image";
 import PlainText from "./textType/PlainText";
@@ -15,7 +16,12 @@ import AddBoxIcon from "@material-ui/icons/AddBox";
 
 import "../styles/AddCard.css";
 
-export default class AddCard extends React.Component {
+@inject((stores) => ({
+  userStore: stores.rootStore.userStore,
+  deckStore: stores.rootStore.deckStore,
+}))
+@observer
+class AddCard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -28,6 +34,7 @@ export default class AddCard extends React.Component {
       ],
       answerTargetCount: 1,
     };
+    this.handleAddCard = this.handleAddCard.bind(this);
     this.refObjArr = [];
     this.addCardForm = this.addCardForm.bind(this);
     this.handleCardTypeChange = this.handleCardTypeChange.bind(this);
@@ -120,16 +127,14 @@ export default class AddCard extends React.Component {
   //*********************************************************************/
 
   //* addCardForm 추가 & state 초기화
-  handleInputReset(e) {
+  //handleInputReset(e) {
+  handleAddCard(e) {
     // 페이지 리로딩 방지
     e.preventDefault();
     //? category => cate_route
-    const { cate_route, title } = this.props.match.params;
-    const { category } = this.props;
-    //이하 parameter의 deck의 deckId 구하는 중
-    //console.log(title);
-    let deckId;
-    //console.log(this.props.decks);
+    const { /*cate_route, title*/ deckKey } = this.props.match.params;
+    //const { category } = this.props;
+    /*let deckId;
     for (let i = 0; i < category.length; i++) {
       if (category[i].category === cate_route) {
         for (let j = 0; j < category[i].Decks.length; j++) {
@@ -138,30 +143,63 @@ export default class AddCard extends React.Component {
           }
         }
       }
-    }
-    //console.log("deckId: ");
-    //console.log(deckId);
-    //cardType 및 question, answer, note에 입력한 값을 이를 기공할 함수에 넘겨준다
-    //const cardType = this.state.cardType;
+    }*/
+    console.log(deckKey);
     let validAddCardForm = [];
+    console.log();
+    let validCardType = null;
+    let validAnswerField = null;
     for (let i = 0; i < this.state.addCardForm.length; i++) {
       if (
         this.state.addCardForm[i].cardType &&
         this.state.addCardForm[i].answer
       ) {
         validAddCardForm.push(this.state.addCardForm[i]);
-      }
+      } else if (!this.state.addCardForm[i].cardType) validCardType = false;
+      else if (!this.state.addCardForm[i].cardType) validAnswerField = false;
     }
-    console.log(validAddCardForm);
-    //[{question: "코로나", answer: "{{1corona virus}}", note: "bbc"},
-    // {question: "바이러스", answer: "{{2virus}}", note: "dfsdf"}]
-    //if (cardType) {
-    this.props.addCard(/*cardType, */ category, deckId, validAddCardForm);
-    //} else {
-    //  //TODO: modal 창 뜨도록 만들어야 함
-    //  console.log("choose card type");
-    //}
-    // 상태 초기화
+    if (validCardType === false) {
+      alert("choose card type for each card");
+      return;
+    } else if (validAnswerField === false) {
+      alert("fill out answer field for each card");
+      return;
+    }
+    //this.props.addCard(/*cardType, */ category, deckId, validAddCardForm);
+
+    const pattern = /\{.*?\}/g; //{{1corona virus}} 이 형태의 string을 골라내고 있음
+    for (let i = 0; i < validAddCardForm.length; i++) {
+      //validAddCardForm[i].deckKey = this.props.match.params.deckKey;
+      const answerTarget = validAddCardForm[i].answer.match(pattern);
+      if (validAddCardForm[i].cardType === CardType.fill && !answerTarget) {
+        alert("should have at least one blank");
+        return;
+        //TODO: fill-in-the-blank 타입의 카드에서는 최소 하나의 빈칸을 지정해야한다는 모달창 뜨도록 만들어야함
+      } else if (
+        validAddCardForm[i].cardType === CardType.fill &&
+        answerTarget
+      ) {
+        const answerTargetArr = [];
+        for (let i = 0; i < answerTarget.length; i++) {
+          if (!answerTargetArr[parseInt(answerTarget[i][2]) - 1]) {
+            answerTargetArr.push(
+              answerTarget[i].slice(3, answerTarget[i].length - 1)
+            );
+          } else {
+            const str = answerTargetArr[parseInt(answerTarget[i][2]) - 1];
+            answerTargetArr[parseInt(answerTarget[i][2]) - 1] = [
+              str,
+              answerTarget[i].slice(3, answerTarget[i].length - 1),
+            ];
+          }
+        }
+        validAddCardForm[i]["answer_target"] = answerTargetArr;
+      } else if (validAddCardForm[i].cardType === CardType.flash) {
+        validAddCardForm[i]["answer_target"] = null;
+      }
+      //validAddCardForm[i].cardType = validAddCardForm[i].cardType;
+    }
+    this.props.deckStore.createNewCards(deckKey, validAddCardForm);
     this.setState({
       addCardForm: [
         {
@@ -177,9 +215,6 @@ export default class AddCard extends React.Component {
   //* textType에 따른 question, answer, (note) state 관리 *************/
   //? AddCard > CSV, JSON, Image props
   handleCSV(csvData) {
-    console.log("csvData_addCard: ", csvData);
-    // const csvAddCard = [...this.state.addCardForm];
-    console.log(csvData[0]);
     for (let i = 0; i < csvData.length; i++) {
       if (i === 0) {
         const csvAddCard = [...this.state.addCardForm];
@@ -196,7 +231,6 @@ export default class AddCard extends React.Component {
   }
 
   handleTable(tableArr) {
-    //console.log(tableArr);
     const newAddCardForm = [...this.state.addCardForm];
     let rowCounter = 0;
     for (let i = 0; i < tableArr.length; i++) {
@@ -215,10 +249,7 @@ export default class AddCard extends React.Component {
           noteColIdx = j;
         }
       }
-      //console.log(answerColIdx);
       for (let j = 1; j < tableArr[i].length; j++) {
-        //tableArr[i].length = number of rows
-
         if (!newAddCardForm[rowCounter]) {
           //row 하나당 cardForm 한개씩 추가
           newAddCardForm.push({
@@ -238,7 +269,6 @@ export default class AddCard extends React.Component {
           }
         }
         rowCounter++;
-        //console.log(newAddCardForm);
       }
     }
 
@@ -246,9 +276,6 @@ export default class AddCard extends React.Component {
   }
 
   handleJSON(jsonData) {
-    console.log("jsonData_addCard: ", jsonData);
-    // let parse = JSON.parse(jsonData);
-
     for (let i = 0; i < jsonData.length; i++) {
       if (i === 0) {
         const jsonAddCard = [...this.state.addCardForm];
@@ -270,9 +297,7 @@ export default class AddCard extends React.Component {
   handleImage(imageData) {
     console.log("imageData_addCard: ", imageData);
     const imageAddCard = [...this.state.addCardForm];
-    // imageAddCard[0].question = imageData.name;
     imageAddCard[0].answer = imageData; //* answer는 필수
-    // imageAddCard[0].question = imageData;
     this.setState({ addCardForm: imageAddCard });
   }
 
@@ -280,40 +305,18 @@ export default class AddCard extends React.Component {
   handleDetect(imageText) {
     console.log("imageText_addCard: ", imageText);
     const textAddCard = [...this.state.addCardForm];
-    // imageAddCard[0].question = imageData.name;
     textAddCard[0].answer = imageText; //* answer는 필수
     // imageAddCard[0].question = imageData;
     this.setState({ addCardForm: textAddCard });
-    // console.log("imageText_addCard: ", imageText);
-    //console.log(lessThan50, moreThan50);
-    //console.log(imageText.length);
-    // for (let i = 0; i < imageText.length; i++) {
-    //   if (i === 0) {
-    //     // if (imageText.length < 50) {
-    //     const textAddCard = [...this.state.addCardForm];
-    //     textAddCard[i].answer = imageText.slice(0, 50);
-    //     this.setState({ addCardForm: textAddCard });
-    //     // }
-    //   } else if (i > 0) {
-    //     // if (imageText.length >= 50) {
-    //     this.addCardForm();
-    //     const textAddCard = [...this.state.addCardForm];
-    //     textAddCard[i].answer = imageText.slice(50);
-    //     this.setState({ addCardForm: textAddCard });
-    //   }
-    // }
   }
   //******************************************************************/
   componentDidMount() {
-    this.props.updateUserDecks(/*this.props.userId*/);
+    //this.props.updateUserDecks(/*this.props.userId*/);
   }
 
   render() {
     //? AddCard > PlainText props
     const { textType /*, addCardForm*/ } = this.state;
-    //console.log("textType", textType);
-    //console.log("cardType", this.state.cardType);
-    //console.log(this.state.addCardForm);
     return (
       <div>
         <AddTextType
@@ -372,9 +375,6 @@ export default class AddCard extends React.Component {
                 <div>
                   <JSON handleJSON={this.handleJSON} />
                   <span></span>
-                  {/* <div className="filler-json"></div> */}
-
-                  {/* <div className="filler-json"></div> */}
                   <br></br>
                   <AddBoxIcon
                     id="add-cardform-button-json"
@@ -436,7 +436,7 @@ export default class AddCard extends React.Component {
           {
             <Button
               id="add-card-button"
-              onClick={this.handleInputReset.bind(this)}
+              onClick={this.handleAddCard /*this.handleInputReset.bind(this)*/}
             >
               Add Card
             </Button>
@@ -446,3 +446,5 @@ export default class AddCard extends React.Component {
     );
   }
 }
+
+export default AddCard;

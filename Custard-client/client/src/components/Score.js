@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { inject, observer } from "mobx-react";
 import { Link as RouterLink } from "react-router-dom";
 import Link from "@material-ui/core/Link";
 
@@ -17,7 +18,12 @@ import Bookmark from "@material-ui/icons/BookmarkBorder";
 
 import "../styles/Score.css";
 
-export default class Score extends Component {
+@inject((stores) => ({
+  deckStore: stores.rootStore.deckStore,
+  cardStore: stores.rootStore.cardStore,
+}))
+@observer
+class Score extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -33,53 +39,18 @@ export default class Score extends Component {
   }
 
   render() {
-    //? category => cate_route
-    const { cate_route, title, cardId } = this.props.match.params;
-    console.log(this.props.match.params);
-    const { currentDeckId, cards, cardIdArr } = this.props.location.state;
-    console.log(this.props.location);
-
-    let correctArr = [];
-    let wrongArr = [];
-    let hintedArr = [];
-    let markedQArr = [];
-    let correct;
-    let wrong;
-    let hinted;
-    let idArray = [];
-    let total = 0;
-    let deckTitle;
-    cards.map((card) => {
-      if (card.deck_id === currentDeckId) {
-        correct = correctArr.push(card.correct);
-        wrong = wrongArr.push(card.wrong);
-        hinted = hintedArr.push(card.hinted);
-
-        correct = correctArr.reduce((acc, curr) => {
-          return acc + curr;
-        });
-        wrong = wrongArr.reduce((acc, curr) => {
-          return acc + curr;
-        });
-        hinted = hintedArr.reduce((acc, curr) => {
-          return acc + curr;
-        });
-        idArray.push(card.id);
-        total = idArray.length;
-        if (card.marked === true) {
-          markedQArr.push(card.question);
-        }
-        console.log(markedQArr);
-        console.log();
-      }
-    });
-    console.log(correct, wrong, hinted);
+    const { deckKey } = this.props.match.params;
+    const {
+      currStudyCover,
+      currStudyCorrect,
+      currStudyWrong,
+    } = this.props.cardStore;
     return (
       <div id="score">
         <div>
           <Grid container spacing={2} className="score_container">
             <Grid xs={12} sm={12} md={12} className="score_header">
-              <h2>Deck Stats</h2>
+              <h2>Study Stats</h2>
             </Grid>
             <Grid xs={6} sm={6} md={6}>
               <List className="score_list">
@@ -87,39 +58,27 @@ export default class Score extends Component {
                   <ListItemIcon>
                     <AddRoundedIcon />
                   </ListItemIcon>
-                  <ListItemText primary={`Correct: ${correct} / ${total}`} />
+                  <ListItemText
+                    primary={`Correct: ${currStudyCorrect} / ${currStudyCover}`}
+                  />
                 </ListItem>
                 <Divider />
                 <ListItem>
                   <ListItemIcon>
                     <RemoveRoundedIcon />
                   </ListItemIcon>
-                  <ListItemText primary={`Wrong: ${wrong} / ${total}`} />
-                </ListItem>
-                <Divider />
-                <ListItem>
-                  <ListItemIcon>
-                    <FlareIcon />
-                  </ListItemIcon>
-                  <ListItemText primary={`Hinted: ${hinted} / ${total}`} />
+                  <ListItemText
+                    primary={`Wrong: ${currStudyWrong} / ${currStudyCover}`}
+                  />
                 </ListItem>
               </List>
-            </Grid>
-            <Grid xs={12} sm={12} md={12} className="score_marked">
-              {markedQArr.map((markedQ, i) => (
-                <div>
-                  <h4>Marked{i + 1}</h4>
-                  {markedQ}
-                </div>
-              ))}
-              <Divider />
             </Grid>
           </Grid>
           <br></br>
           <br></br>
           <Grid container spacing={1}>
             <Grid xs={12} sm={12} md={12}>
-              <Link component={RouterLink} to={`/deck/${cate_route}/${title}`}>
+              <Link component={RouterLink} to={`/deck/${deckKey}`}>
                 <Button variant="outlined" className="score_button">
                   Back to Deck
                 </Button>
@@ -131,3 +90,5 @@ export default class Score extends Component {
     );
   }
 }
+
+export default Score;
