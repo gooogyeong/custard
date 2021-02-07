@@ -7,7 +7,7 @@ import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 
 export default function AddCardType(props) {
   //* AddCard - card type: card_type(안쪽 메뉴)
-  console.log(props);
+  //console.log(props);
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [cardtype, setCardType] = React.useState("Card Type");
   //* card_type에 따라 state 변화하고, 서버에 post 요청 시 다르게 보냄

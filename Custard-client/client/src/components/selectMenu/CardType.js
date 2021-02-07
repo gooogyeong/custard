@@ -6,7 +6,6 @@ import MenuItem from "@material-ui/core/MenuItem";
 import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
 
 export default function CardType(props) {
-  //* Card - card type
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [cardtype, setCardType] = React.useState("Card Type");
 
@@ -20,19 +19,10 @@ export default function CardType(props) {
     setCardType(e.target.innerText);
   };
 
-  //? Card > CardType props
-  //! cardtype만 바뀌어도 question, answer, hint 함께 서버에 patch/post 요청 보내는 문제
   return (
     <div>
-      {/*console.log(props.values.cardtype)*/}
       <div className="card_type">
-        {/* Card Type &nbsp; */}
-        <Button
-          //   aria-controls="simple-menu"
-          //   aria-haspopup="true"
-          onClick={handleClick}
-          variant="outlined"
-        >
+        <Button onClick={handleClick} variant="outlined">
           {props.values.cardtype}&nbsp;
           <ArrowDropDownIcon />
         </Button>
@@ -47,16 +37,7 @@ export default function CardType(props) {
             onClick={(e) => {
               handleClose(e);
               props.values.cardtype = e.target.innerText;
-              props.editCardtype(props.values.cardtype, e.target.innerText);
-              props.editCardInServer(
-                props.values.id,
-                props.values.cardtype,
-                props.values.question,
-                props.values.answer,
-                props.values.answer_target,
-                props.values.hint
-              );
-              props.editCard(props.values.id);
+              props.editCardType(props.values.cardKey, e.target.innerText);
             }}
           >
             flashcard
@@ -65,16 +46,7 @@ export default function CardType(props) {
             onClick={(e) => {
               handleClose(e);
               props.values.cardtype = e.target.innerText;
-              props.editCardtype(props.values.cardtype, e.target.innerText);
-              props.editCardInServer(
-                props.values.id,
-                props.values.cardtype,
-                props.values.question,
-                props.values.answer,
-                props.values.answer_target,
-                props.values.hint
-              );
-              props.editCard(props.values.id);
+              props.editCardType(props.values.cardKey, e.target.innerText);
             }}
           >
             fill-in-the-blank

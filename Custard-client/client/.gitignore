@@ -2,6 +2,8 @@
 
 #config
 /src/config/googleClientId.js
+src/firebase/config.ts
+src/google_cloud/config.json
 
 # dependencies
 /node_modules
