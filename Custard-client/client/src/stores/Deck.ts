@@ -1,15 +1,14 @@
-import { observable, action, autorun } from "mobx";
+import { observable, computed, action, autorun } from "mobx";
 import moment from "moment";
 import { DeckRef, CardRef, getDeckRef, getCardRef } from "../firebase";
 import { Deck, Card, CardForm, CardType } from "../types";
-import { client } from "../google_cloud";
-import { actionFieldDecorator } from "mobx/lib/internal";
 
 export class DeckStore {
   constructor(rootStore) {
     this.rootStore = rootStore;
     autorun(() => {
       this.uuid = this.rootStore.userStore.uuid;
+      this.getUserDecks(this.uuid)
     });
     this.setCurrDeck = this.setCurrDeck.bind(this);
     this.createDeck = this.createDeck.bind(this);
@@ -22,13 +21,13 @@ export class DeckStore {
   }
   rootStore;
 
-  uuid: string = null;
+  @observable uuid: string = null;
   @observable errMsg: string = null;
   @observable userDecks: Deck[] = null;
   @observable currDeck: Deck = null;
 
   @action
-  getUserDecks(uuid: string) {
+  getUserDecks(uuid: string): void {
     DeckRef.orderByChild("uuid")
       .equalTo(uuid)
       .on(
@@ -56,7 +55,6 @@ export class DeckStore {
       userDeck.lastUpdatedAt = deckSnapshot["last_updated_at"];
       userDeck.title = deckSnapshot["title"];
       userDeck.uuid = deckSnapshot["uuid"];
-      //userDeck.cards = deckSnapshot["cards"] || [];
       userDeck.subDecks = deckSnapshot["sub_decks"] || [];
       userDeck.superDecks = deckSnapshot["super_decks"] || [];
       userDecksArr.push(userDeck);
@@ -86,11 +84,8 @@ export class DeckStore {
       const superDeckRef = getDeckRef(superDeckKey);
       const superDeckSnap = await superDeckRef.once("value");
       const subDeckArr = superDeckSnap.val()["sub_decks"];
-      console.log(`${superDeckSnap.val()["title"]} sub_decks: `);
-      console.log(subDeckArr);
       const subDeckIdx = subDeckArr.indexOf(deck.key);
       if (subDeckIdx !== -1) subDeckArr.splice(subDeckIdx, 1);
-      console.log(subDeckArr);
       await superDeckRef.update({
         sub_decks: subDeckArr, //, [...subDeckArr].slice(0, subDeckArr.indexOf(deck.key))
       });
@@ -157,11 +152,13 @@ export class DeckStore {
 
   createNewCards(deckKey: string, validAddCardForm: any[] /*CardForm[]*/) {
     //TODO: answer에 있는 보기 싫은 {{ }} .replace()로 없애줘야!? -> study부분에서 해결해야할 문제
-    /*{ answer: "apple"
-cardType: "flashcard"
-deckKey: "-MBKCYRzcJpxRReQ98Yy"
-note: "snow white"
-question: "사과"}*/
+    // {
+    //   answer: "apple"
+    //   cardType: "flashcard"
+    //   deckKey: "-MBKCYRzcJpxRReQ98Yy"
+    //   note: "snow white"
+    //   question: "사과"
+    // }
     const promises = validAddCardForm.map((cardForm, i) => {
       const newCardPath = CardRef.child(deckKey).push().key;
       const newCardRef = getCardRef(deckKey).child(newCardPath);
