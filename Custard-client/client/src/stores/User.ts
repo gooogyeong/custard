@@ -1,4 +1,4 @@
-import { observable, action } from "mobx";
+import {observable, action, autorun} from "mobx";
 import firebase from "firebase/app";
 import moment from "moment";
 import {
@@ -41,7 +41,6 @@ export class UserStore {
   @action
   endSignUp() {
     this.needSignUp = false;
-    console.log("end sign up");
   }
 
   @action
@@ -51,7 +50,6 @@ export class UserStore {
 
   @action
   storeSignIn() {
-    console.log("store sign in");
     this.isLogin = true;
   }
 
@@ -66,7 +64,6 @@ export class UserStore {
       "value",
       function (snap) {
         if (snap.exists()) {
-          console.log("start observing user info");
           this.setUserInfo(snap);
         }
       }.bind(this)
@@ -104,30 +101,24 @@ export class UserStore {
 
   @action
   setUserInfo(snap) {
-    console.log("setting user info");
     const userKey = Object.keys(snap.val())[0];
     const user = snap.val()[userKey];
     this.uuid = user.uuid;
     this.userKey = userKey;
     this.userName = user.username;
-    //console.log(user["profile_img_url"]);
     this.profileImgURL = user["profile_img_url"];
   }
 
   getUserInfo(uuid) {
-    console.log("getting user info");
     UserRef.orderByChild("uuid")
       .equalTo(uuid)
-      .on("value", async function (snap) {
-        if (snap.exists()) {
-          await this.setUserInfo(snap);
-        }
+      .on("value", (snap) => {
+        if (snap.exists()) this.setUserInfo(snap);
       });
   }
 
   @action
   async checkIfRegistered(uuid) {
-    console.log("checking if registered");
     let userSnapshot = null;
     await UserRef.orderByChild("uuid")
       .equalTo(uuid)
@@ -148,31 +139,23 @@ export class UserStore {
 
   @action
   checkAuthPersistence() {
-    console.log("checking auth persistence...");
     firebase.auth().onAuthStateChanged(
       function (user) {
         if (user) {
+          // console.log('there is signed in user')
           //만약 로그인된 유저가 있다면 그중에 current user가 있는지 확인한다
           const currUser = firebase.auth().currentUser;
           if (currUser) {
-            console.log("current user exists");
-            //const currUserSnapshot = await this.checkIfRegistered(currUser.uid);
-            //console.log(currUserSnapshot);
             this.uuid = currUser.uid;
             this.checkIfRegistered(currUser.uid).then(
               function () {
                 if (this.needSignUp === false) {
-                  console.log("no need to sign up");
-                  console.log(this.needSignUp);
-                  //this.setUserInfo(snap);
-                  //this.isLogin = true;
                   this.storeSignIn();
                   this.observeUserInfo(currUser.uid);
                 }
               }.bind(this)
             );
           } else {
-            console.log("unregistered user");
             this.errMsg = "unregistered user";
           }
         }
@@ -195,27 +178,3 @@ export class UserStore {
     firebase.auth().signOut().then(this.storeSignOut);
   }
 }
-
-// UserRef.orderByChild("uuid")
-//   .equalTo(res.user.uid)
-//   .once("value", (snap) => {
-//     if (!snap.exists()) {
-//       this.props.history.push("/signup");
-//     } else {
-//       console.log("registered user");
-//       console.log(snap.val());
-//       const userKey = Object.keys(snap.val())[0];
-//       const user = snap.val()[userKey];
-//       this.props.setUserInfo(user);
-//       this.props.history.push("/mypage");
-//     }
-//   });
-// 아예 google signin이 처음인 경우
-// const isUnregistered =
-//   res.additionalUserInfo.isNewUser ||
-//   firebase.auth().currentUser.metadata.creationTime ===
-//     firebase.auth().currentUser.metadata.lastSignInTime;
-
-// 토큰
-//const token = res.credential.accessToken;
-//localStorage.setItem("usertoken", token);

@@ -9,23 +9,6 @@ import OpenIconSpeedDial from "./OpenIconSpeedDial";
 import DeckEntry from "./DeckEntry";
 import { Loading } from "./fragmented/Loading";
 
-const DeckListContainer = styled.div`
-  width: 600px;
-  min-height: 300px;
-  margin: 0 0 0 250px;
-  background-color: #ece3a9;
-  padding: 40px 20px 20px 30px;
-  border-radius: 5px;
-`;
-
-const NewDeck = styled.input`
-  color: #bdbdbd;
-  border: 3px solid black;
-  margin: 2px 0 2px 23px;
-  font-size: 16px;
-  width: 394px;
-`;
-
 export const TreeToggleIcon = materialStyled(PlayArrow)({
   cursor: "pointer",
 });
@@ -56,10 +39,8 @@ class AllDeckList extends Component {
     this.setState({ action: "add_new_deck" });
   }
 
-  componentDidMount() {
-    this.props.deckStore.getUserDecks(this.props.userStore.uuid);
-    this.props.deckStore.resetCurrDeck();
-    this.props.cardStore.resetCurrDeckCards();
+  async componentDidMount() {
+    await this.props.deckStore.getUserDecks(this.props.userStore.uuid);
   }
 
   render() {
@@ -72,13 +53,13 @@ class AllDeckList extends Component {
       deleteDeck,
       addSubDeck,
     } = this.props.deckStore;
-    //if (userDecks) console.log(userDecks.map((deck) => deck.title));
     return (
       <DeckListContainer>
         {userDecks !== null ? (
-          userDecks.map((deck) => {
+          userDecks.map((deck, deckIndex) => {
             return deck.superDecks.length === 0 ? (
               <DeckEntry
+                key={deckIndex}
                 history={this.props.history}
                 userDecks={userDecks}
                 deck={deck}
@@ -97,7 +78,6 @@ class AllDeckList extends Component {
           <NewDeck
             ref={this.newCategory}
             defaultValue="customize new deck"
-            //style={{ border: "3px black solid" }}
             type="text"
             onFocus={(e) => {
               e.target.value = "";
@@ -138,5 +118,22 @@ class AllDeckList extends Component {
     );
   }
 }
+
+const DeckListContainer = styled.div`
+  width: 600px;
+  min-height: 300px;
+  margin: 0 0 0 250px;
+  background-color: #ece3a9;
+  padding: 40px 20px 20px 30px;
+  border-radius: 5px;
+`;
+
+const NewDeck = styled.input`
+  color: #bdbdbd;
+  border: 3px solid black;
+  margin: 2px 0 2px 23px;
+  font-size: 16px;
+  width: 394px;
+`;
 
 export default AllDeckList;

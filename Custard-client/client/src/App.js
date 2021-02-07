@@ -1,8 +1,7 @@
 import React, { Component } from "react";
 import { inject, observer } from "mobx-react";
 import { Link, Switch, Redirect } from "react-router-dom";
-import { BrowserRouter as Router, Route } from "react-router-dom";
-import styled from "styled-components";
+import { Route } from "react-router-dom";
 import "./App.css";
 import "antd/dist/antd.css";
 import Mypage from "./components/Mypage";
@@ -13,12 +12,6 @@ import Deck from "./components/Deck";
 import AddCard from "./components/AddCard";
 import Signup from "./components/Signup";
 import Score from "./components/Score";
-
-//import { initUser, checkAuthPersistence } from "./actions/mypageActions";
-
-//import custard_logo_1 from "./custard_logo_1.png";
-//import custard_logo_2 from "./custard_logo_2.png";
-//import custard_logo_3 from "./custard_logo_3.png";
 import custard_logo_no from "./custard_logo_no.png";
 import custard_logo_noo from "./custard_logo_noo.png";
 
@@ -27,7 +20,7 @@ import custard_logo_noo from "./custard_logo_noo.png";
 }))
 @observer
 class App extends Component {
-  state = { sideNav: false };
+  state = { sideNav: true };
   //material-ui Drawer 사용해도 됨
   handleMouseEnter() {
     this.setState({
@@ -40,8 +33,7 @@ class App extends Component {
     });
   }
 
-  componentDidMount() {
-    //console.log("app checking auth persistence");
+  componentWillMount () {
     this.props.userStore.checkAuthPersistence();
   }
 
