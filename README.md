@@ -5,6 +5,7 @@
 
 ※ 배포 링크 :  https://custard-937a9.web.app/
 
+
 ### 주요 기능 
 * 구글 소셜 로그인 & 프로필 이미지 추가
 <img src="./gif/login.gif"  width="600" height="300">
@@ -30,6 +31,7 @@
 
 <img src="./gif/study.gif"  width="600" height="300">
 
+
 ### 설치 및 사용 방법
 (1) 코드 복사
 
@@ -41,21 +43,21 @@
 
 (3) 실행
 
-#### Custard-client 
-`cd client`
-
 `npm start`
 
-  
+
 ### 사용 스택
 #### Front-End
-* React & Redux
+* React
+* MobX
+* styled-components
 * TOAST-UI
 * Tesseract.js
 * Material-UI
 
 #### Back-End
-* Firebase
+* Firebase realtime database
+* Firebase hosting
 
 ***
 
